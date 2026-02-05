@@ -1,6 +1,6 @@
-# React Vite Starter
+# React Vite B2B
 
-A modern React starter template with Vite, TailwindCSS, TanStack Query, and TypeScript.
+A modern React B2B starter template with multi-tenant organization support, built with Vite, TailwindCSS, TanStack Query, and TypeScript.
 
 ## Features
 
@@ -14,6 +14,8 @@ A modern React starter template with Vite, TailwindCSS, TanStack Query, and Type
 - **Zod** - Schema validation
 - **ESLint + Prettier** - Code linting and formatting
 - **Bun** - Fast JavaScript runtime and package manager
+- **Multi-tenancy** - Organization switching and context
+- **B2B Components** - Organization switcher, team management UI
 
 ## Quick Start
 
@@ -25,7 +27,7 @@ A modern React starter template with Vite, TailwindCSS, TanStack Query, and Type
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/react-vite-starter.git myapp
+git clone https://github.com/yourusername/react-vite-b2b.git myapp
 cd myapp
 ```
 
@@ -50,24 +52,40 @@ Visit http://localhost:5173
 
 ```
 src/
-├── components/          # Reusable components
-│   ├── Layout.tsx       # Main layout with navigation
+├── components/
+│   ├── ui/                  # Reusable UI components
+│   │   ├── Alert.tsx        # Alert/notification component
+│   │   ├── Badge.tsx        # Status badges
+│   │   ├── Button.tsx       # Button with variants
+│   │   ├── Card.tsx         # Card container components
+│   │   ├── Input.tsx        # Form input with validation
+│   │   ├── Spinner.tsx      # Loading spinner
+│   │   └── index.ts         # Component exports
+│   ├── nav/                 # Navigation components
+│   ├── Layout.tsx           # Main layout with navigation
+│   ├── OrgSwitcher.tsx      # Organization switching dropdown
 │   └── ProtectedRoute.tsx
-├── lib/                 # Utilities and configurations
-│   ├── api.ts           # Axios instance and helpers
-│   ├── auth.tsx         # Authentication context
-│   └── utils.ts         # Utility functions
-├── pages/               # Page components
+├── lib/
+│   ├── api.ts               # Axios instance and helpers
+│   ├── auth.tsx             # Authentication context
+│   ├── organizations.tsx    # Organization context
+│   └── utils.ts             # Utility functions
+├── pages/
 │   ├── HomePage.tsx
 │   ├── LoginPage.tsx
 │   ├── RegisterPage.tsx
 │   ├── DashboardPage.tsx
 │   ├── ProfilePage.tsx
+│   ├── OrganizationsPage.tsx
+│   ├── TeamPage.tsx
 │   └── NotFoundPage.tsx
-├── types/               # TypeScript type definitions
-├── App.tsx              # Main app component
-├── main.tsx             # Entry point
-└── index.css            # Global styles
+├── test/
+│   ├── setup.ts             # Vitest setup
+│   └── test-utils.tsx       # Test utilities
+├── types/                   # TypeScript type definitions
+├── App.tsx                  # Main app component
+├── main.tsx                 # Entry point
+└── index.css                # Global styles with Tailwind
 ```
 
 ## Scripts
@@ -79,11 +97,12 @@ bun preview    # Preview production build
 bun lint       # Run ESLint
 bun format     # Format with Prettier
 bun typecheck  # Run TypeScript check
+bun test       # Run tests
 ```
 
 ## API Integration
 
-The template is configured to work with a Django API backend (like [django-api-starter](https://github.com/yourusername/django-api-starter)).
+The template is configured to work with a Django B2B API backend (like [django-api-b2b](https://github.com/yourusername/django-api-b2b)).
 
 ### Development Proxy
 
@@ -106,6 +125,81 @@ The template includes a complete authentication flow:
 - JWT token management with auto-refresh
 - Protected routes
 - Auth context with `useAuth()` hook
+
+## Multi-tenancy
+
+### Organization Context
+
+Use the organization context to manage the current organization:
+
+```typescript
+import { useOrganization } from '@/lib/organizations'
+
+function MyComponent() {
+  const { currentOrg, organizations, switchOrg } = useOrganization()
+
+  return (
+    <div>
+      <p>Current: {currentOrg?.name}</p>
+      <select onChange={(e) => switchOrg(e.target.value)}>
+        {organizations.map(org => (
+          <option key={org.id} value={org.id}>{org.name}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+```
+
+### API Requests with Organization Context
+
+The API client automatically includes the organization ID in requests:
+
+```typescript
+import { api } from '@/lib/api'
+
+// Organization ID is automatically added via X-Organization-ID header
+const teams = await api.get('/organizations/current/teams')
+```
+
+## UI Components
+
+The template includes a set of reusable UI components in `src/components/ui/`:
+
+```typescript
+import { Button, Input, Card, Alert, Badge, Spinner } from '@/components/ui'
+
+// Button variants
+<Button variant="primary">Primary</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="danger">Danger</Button>
+<Button loading>Loading...</Button>
+
+// Input with validation
+<Input label="Email" error="Invalid email" helperText="We'll never share your email" />
+
+// Card components
+<Card>
+  <CardHeader>
+    <CardTitle>Card Title</CardTitle>
+  </CardHeader>
+  <CardContent>Card content goes here</CardContent>
+  <CardFooter>Footer actions</CardFooter>
+</Card>
+
+// Alert variants
+<Alert variant="success" title="Success!">Operation completed.</Alert>
+<Alert variant="error" dismissible onDismiss={() => {}}>Something went wrong.</Alert>
+
+// Badge for roles
+<Badge variant="success">Owner</Badge>
+<Badge variant="primary">Admin</Badge>
+<Badge variant="default">Member</Badge>
+
+// Loading spinner
+<Spinner size="lg" />
+```
 
 ## Styling
 
@@ -132,8 +226,8 @@ Use the `api` instance from `src/lib/api.ts`:
 ```typescript
 import { api } from '@/lib/api'
 
-const fetchUsers = async () => {
-  const { data } = await api.get('/users')
+const fetchTeams = async (orgId: string) => {
+  const { data } = await api.get(`/organizations/${orgId}/teams`)
   return data
 }
 ```
@@ -144,9 +238,22 @@ const fetchUsers = async () => {
 import { useQuery } from '@tanstack/react-query'
 
 const { data, isLoading, error } = useQuery({
-  queryKey: ['users'],
-  queryFn: fetchUsers,
+  queryKey: ['teams', orgId],
+  queryFn: () => fetchTeams(orgId),
 })
+```
+
+## Testing
+
+```bash
+# Run tests
+bun test
+
+# Run tests with coverage
+bun test --coverage
+
+# Run tests in watch mode
+bun test --watch
 ```
 
 ## Deployment
@@ -167,6 +274,21 @@ Deploy the `dist/` directory to any static hosting:
 - Netlify
 - Cloudflare Pages
 - AWS S3 + CloudFront
+
+## Environment Variables
+
+See `.env.example` for all available configuration options:
+
+```env
+# API URL
+VITE_API_URL=https://api.example.com
+
+# Feature flags
+VITE_ENABLE_ANALYTICS=false
+
+# App configuration
+VITE_APP_NAME=MyApp
+```
 
 ## License
 
