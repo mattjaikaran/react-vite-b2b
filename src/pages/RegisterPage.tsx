@@ -1,34 +1,65 @@
-import { useState, FormEvent } from 'react'
+import { useReducer, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { getErrorMessage } from '@/lib/api'
+import { Button, Input, Alert } from '@/components/ui'
+
+interface RegisterState {
+  email: string
+  username: string
+  password: string
+  confirmPassword: string
+  error: string
+  isLoading: boolean
+}
+
+type RegisterAction =
+  | { type: 'SET_FIELD'; field: keyof Pick<RegisterState, 'email' | 'username' | 'password' | 'confirmPassword'>; value: string }
+  | { type: 'SET_ERROR'; error: string }
+  | { type: 'SET_LOADING'; isLoading: boolean }
+
+const initialState: RegisterState = {
+  email: '',
+  username: '',
+  password: '',
+  confirmPassword: '',
+  error: '',
+  isLoading: false,
+}
+
+function reducer(state: RegisterState, action: RegisterAction): RegisterState {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value }
+    case 'SET_ERROR':
+      return { ...state, error: action.error }
+    case 'SET_LOADING':
+      return { ...state, isLoading: action.isLoading }
+  }
+}
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { email, username, password, confirmPassword, error, isLoading } = state
 
   const { register, login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
+    dispatch({ type: 'SET_ERROR', error: '' })
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      dispatch({ type: 'SET_ERROR', error: 'Passwords do not match' })
       return
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters')
+      dispatch({ type: 'SET_ERROR', error: 'Password must be at least 8 characters' })
       return
     }
 
-    setIsLoading(true)
+    dispatch({ type: 'SET_LOADING', isLoading: true })
 
     try {
       await register({ email, username, password })
@@ -36,9 +67,9 @@ export default function RegisterPage() {
       await login({ email, password })
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      setError(getErrorMessage(err))
+      dispatch({ type: 'SET_ERROR', error: getErrorMessage(err) })
     } finally {
-      setIsLoading(false)
+      dispatch({ type: 'SET_LOADING', isLoading: false })
     }
   }
 
@@ -59,84 +90,66 @@ export default function RegisterPage() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
+            <Alert variant="error">{error}</Alert>
           )}
 
           <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="label">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input mt-1"
-                placeholder="you@example.com"
-              />
-            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              aria-label="Email address"
+              label="Email address"
+              value={email}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })}
+              placeholder="you@example.com"
+            />
 
-            <div>
-              <label htmlFor="username" className="label">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="input mt-1"
-                placeholder="johndoe"
-              />
-            </div>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              aria-label="Username"
+              label="Username"
+              value={username}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'username', value: e.target.value })}
+              placeholder="johndoe"
+            />
 
-            <div>
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input mt-1"
-                placeholder="••••••••"
-              />
-            </div>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              aria-label="Password"
+              label="Password"
+              value={password}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'password', value: e.target.value })}
+              placeholder="••••••••"
+            />
 
-            <div>
-              <label htmlFor="confirmPassword" className="label">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input mt-1"
-                placeholder="••••••••"
-              />
-            </div>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              aria-label="Confirm Password"
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: e.target.value })}
+              placeholder="••••••••"
+            />
           </div>
 
-          <button type="submit" disabled={isLoading} className="btn-primary w-full">
-            {isLoading ? 'Creating account...' : 'Create account'}
-          </button>
+          <Button type="submit" disabled={isLoading} loading={isLoading} className="w-full">
+            {isLoading ? 'Creating account…' : 'Create account'}
+          </Button>
         </form>
       </div>
     </div>

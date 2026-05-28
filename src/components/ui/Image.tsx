@@ -1,6 +1,5 @@
 import {
   useState,
-  useEffect,
   useRef,
   type ReactNode,
   type SyntheticEvent,
@@ -41,7 +40,8 @@ const roundedMap: Record<Exclude<ImageRounded, false>, string> = {
   full: 'rounded-full',
 }
 
-const Image = ({
+// Inner component — receives a stable `src` and resets via key when src changes
+function ImageInner({
   src,
   alt,
   layout = 'responsive',
@@ -62,21 +62,15 @@ const Image = ({
   onLoad,
   onError,
   ...props
-}: ImageProps) => {
+}: ImageProps) {
   const imgRef = useRef<HTMLImageElement>(null)
-  const [currentSrc, setCurrentSrc] = useState(src)
-  const [status, setStatus] = useState<LoadStatus>('loading')
+  const [useFallback, setUseFallback] = useState(false)
+  const [status, setStatus] = useState<LoadStatus>(() =>
+    imgRef.current?.complete ? 'loaded' : 'loading'
+  )
 
-  useEffect(() => {
-    setCurrentSrc(src)
-    setStatus('loading')
-  }, [src])
-
-  useEffect(() => {
-    if (imgRef.current?.complete) {
-      setStatus('loaded')
-    }
-  }, [currentSrc])
+  // Derive display src during render — never store derived state
+  const displaySrc = useFallback && fallbackSrc ? fallbackSrc : src
 
   const handleLoad = (e: SyntheticEvent<HTMLImageElement>) => {
     setStatus('loaded')
@@ -84,8 +78,8 @@ const Image = ({
   }
 
   const handleError = (e: SyntheticEvent<HTMLImageElement>) => {
-    if (fallbackSrc && currentSrc !== fallbackSrc) {
-      setCurrentSrc(fallbackSrc)
+    if (fallbackSrc && !useFallback) {
+      setUseFallback(true)
     } else {
       setStatus('error')
     }
@@ -157,7 +151,7 @@ const Image = ({
       )}
       <img
         ref={imgRef}
-        src={currentSrc}
+        src={displaySrc}
         alt={alt}
         width={width}
         height={height}
@@ -177,6 +171,11 @@ const Image = ({
     </span>
   )
 }
+
+// Public Image component: use key={src} so React resets the inner component when src changes
+const Image = ({ src, ...rest }: ImageProps) => (
+  <ImageInner key={src} src={src} {...rest} />
+)
 
 const AvatarImage = ({ size = 40, width, height, ...props }: AvatarImageProps) => (
   <Image

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { Image } from '@/components/ui'
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth()
@@ -36,12 +37,24 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Hero image */}
+      <div className="mt-12 mx-auto max-w-2xl">
+        <Image
+          src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop"
+          alt="Team collaboration"
+          layout="responsive"
+          aspectRatio="16/9"
+          rounded="lg"
+          placeholder="skeleton"
+        />
+      </div>
+
       {/* Features section */}
       <div className="mt-20">
         <h2 className="text-center text-3xl font-bold text-gray-900">Features</h2>
         <div className="mt-10 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg bg-white p-6 shadow">
-            <h3 className="text-lg font-medium text-gray-900">React 18</h3>
+            <h3 className="text-lg font-medium text-gray-900">React 19</h3>
             <p className="mt-2 text-gray-500">
               Latest React with concurrent features and improved performance.
             </p>
@@ -73,7 +86,7 @@ export default function HomePage() {
           <div className="rounded-lg bg-white p-6 shadow">
             <h3 className="text-lg font-medium text-gray-900">React Router</h3>
             <p className="mt-2 text-gray-500">
-              Client-side routing with React Router v6.
+              Client-side routing with React Router v7.
             </p>
           </div>
         </div>

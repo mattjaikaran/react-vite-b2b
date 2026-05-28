@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, use, ReactNode } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, setTokens, clearTokens, getAccessToken } from './api'
 
@@ -57,7 +57,7 @@ const registerUser = async (userData: RegisterData) => {
 
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAccessToken())
+  const isAuthenticated = !!getAccessToken()
   const queryClient = useQueryClient()
 
   // Fetch current user
@@ -73,7 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: loginUser,
     onSuccess: (data) => {
       setTokens(data.access_token, data.refresh_token)
-      setIsAuthenticated(true)
       queryClient.invalidateQueries({ queryKey: ['user'] })
     },
   })
@@ -81,20 +80,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Register mutation
   const registerMutation = useMutation({
     mutationFn: registerUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+    },
   })
 
   // Logout function
   const logout = () => {
     clearTokens()
-    setIsAuthenticated(false)
     queryClient.clear()
   }
-
-  // Check auth state on mount
-  useEffect(() => {
-    const token = getAccessToken()
-    setIsAuthenticated(!!token)
-  }, [])
 
   const value: AuthContextType = {
     user: user ?? null,
@@ -114,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 // Hook
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = use(AuthContext)
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider')
   }

@@ -78,7 +78,7 @@ export interface ApiError {
   details?: Record<string, string[]>
 }
 
-export const isApiError = (error: unknown): error is AxiosError<ApiError> => {
+const isApiError = (error: unknown): error is AxiosError<ApiError> => {
   return axios.isAxiosError(error)
 }
 

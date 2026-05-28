@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { getErrorMessage } from '@/lib/api'
+import { Button, Input, Alert } from '@/components/ui'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -47,50 +48,40 @@ export default function LoginPage() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
+            <Alert variant="error">{error}</Alert>
           )}
 
           <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="label">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input mt-1"
-                placeholder="you@example.com"
-              />
-            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              aria-label="Email address"
+              label="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
 
-            <div>
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input mt-1"
-                placeholder="••••••••"
-              />
-            </div>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              aria-label="Password"
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
           </div>
 
-          <button type="submit" disabled={isLoading} className="btn-primary w-full">
-            {isLoading ? 'Signing in...' : 'Sign in'}
-          </button>
+          <Button type="submit" disabled={isLoading} loading={isLoading} className="w-full">
+            {isLoading ? 'Signing in…' : 'Sign in'}
+          </Button>
         </form>
       </div>
     </div>

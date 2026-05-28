@@ -2,6 +2,8 @@ import { Outlet, Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import OrgSwitcher from './OrgSwitcher'
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export default function Layout() {
   const { isAuthenticated, user, logout } = useAuth()
 
@@ -20,7 +22,7 @@ export default function Layout() {
                   <OrgSwitcher />
                 </div>
               )}
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <div className="hidden sm:ml-6 sm:flex sm:gap-x-8">
                 <Link
                   to="/"
                   className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
@@ -45,7 +47,7 @@ export default function Layout() {
                 )}
               </div>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-x-4">
               {isAuthenticated ? (
                 <>
                   <Link
@@ -54,7 +56,7 @@ export default function Layout() {
                   >
                     {user?.email}
                   </Link>
-                  <button onClick={logout} className="btn-outline text-sm">
+                  <button type="button" onClick={logout} className="btn-outline text-sm">
                     Logout
                   </button>
                 </>
@@ -82,7 +84,7 @@ export default function Layout() {
       <footer className="mt-auto bg-white">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} MyApp. All rights reserved.
+            &copy; {CURRENT_YEAR} MyApp. All rights reserved.
           </p>
         </div>
       </footer>

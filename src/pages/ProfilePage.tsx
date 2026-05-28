@@ -1,18 +1,43 @@
-import { useState, FormEvent } from 'react'
+import { useReducer, FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/lib/auth'
 import { api, getErrorMessage } from '@/lib/api'
 import { formatDateTime } from '@/lib/utils'
+import { Button, Input, Alert } from '@/components/ui'
+
+interface ProfileState {
+  firstName: string
+  lastName: string
+  bio: string
+  error: string
+  success: string
+}
+
+type ProfileAction =
+  | { type: 'SET_FIELD'; field: keyof Pick<ProfileState, 'firstName' | 'lastName' | 'bio'>; value: string }
+  | { type: 'SET_STATUS'; error: string; success: string }
+
+function reducer(state: ProfileState, action: ProfileAction): ProfileState {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value }
+    case 'SET_STATUS':
+      return { ...state, error: action.error, success: action.success }
+  }
+}
 
 export default function ProfilePage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
-  const [firstName, setFirstName] = useState(user?.first_name || '')
-  const [lastName, setLastName] = useState(user?.last_name || '')
-  const [bio, setBio] = useState(user?.bio || '')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [state, dispatch] = useReducer(reducer, {
+    firstName: user?.first_name ?? '',
+    lastName: user?.last_name ?? '',
+    bio: user?.bio ?? '',
+    error: '',
+    success: '',
+  })
+  const { firstName, lastName, bio, error, success } = state
 
   const updateProfile = useMutation({
     mutationFn: async (data: { first_name: string; last_name: string; bio: string }) => {
@@ -21,12 +46,10 @@ export default function ProfilePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
-      setSuccess('Profile updated successfully!')
-      setError('')
+      dispatch({ type: 'SET_STATUS', error: '', success: 'Profile updated successfully!' })
     },
     onError: (err) => {
-      setError(getErrorMessage(err))
-      setSuccess('')
+      dispatch({ type: 'SET_STATUS', error: getErrorMessage(err), success: '' })
     },
   })
 
@@ -88,54 +111,47 @@ export default function ProfilePage() {
               <h2 className="text-lg font-medium text-gray-900">Edit Profile</h2>
 
               {error && (
-                <div className="mt-4 rounded-md bg-red-50 p-4">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="mt-4">
+                  <Alert variant="error">{error}</Alert>
                 </div>
               )}
 
               {success && (
-                <div className="mt-4 rounded-md bg-green-50 p-4">
-                  <p className="text-sm text-green-700">{success}</p>
+                <div className="mt-4">
+                  <Alert variant="success">{success}</Alert>
                 </div>
               )}
 
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="firstName" className="label">
-                    First name
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="input mt-1"
-                  />
-                </div>
+                <Input
+                  id="firstName"
+                  type="text"
+                  aria-label="First name"
+                  label="First name"
+                  value={firstName}
+                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'firstName', value: e.target.value })}
+                />
 
-                <div>
-                  <label htmlFor="lastName" className="label">
-                    Last name
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="input mt-1"
-                  />
-                </div>
+                <Input
+                  id="lastName"
+                  type="text"
+                  aria-label="Last name"
+                  label="Last name"
+                  value={lastName}
+                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'lastName', value: e.target.value })}
+                />
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="bio" className="label">
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
                     Bio
                   </label>
                   <textarea
                     id="bio"
                     rows={3}
+                    aria-label="Bio"
                     value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="input mt-1"
+                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'bio', value: e.target.value })}
+                    className="input mt-1 w-full"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
@@ -143,9 +159,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-              <button type="submit" disabled={updateProfile.isPending} className="btn-primary">
-                {updateProfile.isPending ? 'Saving...' : 'Save changes'}
-              </button>
+              <Button type="submit" disabled={updateProfile.isPending} loading={updateProfile.isPending}>
+                {updateProfile.isPending ? 'Saving…' : 'Save changes'}
+              </Button>
             </div>
           </form>
         </div>

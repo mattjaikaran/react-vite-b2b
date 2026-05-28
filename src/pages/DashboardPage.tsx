@@ -1,8 +1,17 @@
 import { useAuth } from '@/lib/auth'
 import { formatDate } from '@/lib/utils'
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent, Spinner } from '@/components/ui'
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -13,40 +22,48 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Account Status</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-            {user?.is_active ? (
-              <span className="text-green-600">Active</span>
-            ) : (
-              <span className="text-red-600">Inactive</span>
-            )}
-          </dd>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Account Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge variant={user?.is_active ? 'success' : 'error'}>
+              {user?.is_active ? 'Active' : 'Inactive'}
+            </Badge>
+          </CardContent>
+        </Card>
 
-        <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Member Since</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-            {user?.date_joined ? formatDate(user.date_joined) : 'N/A'}
-          </dd>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Member Since</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight text-gray-900">
+              {user?.date_joined ? formatDate(user.date_joined) : 'N/A'}
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Email</dt>
-          <dd className="mt-1 truncate text-lg font-semibold tracking-tight text-gray-900">
-            {user?.email}
-          </dd>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Email</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="truncate text-lg font-semibold tracking-tight text-gray-900">
+              {user?.email}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick actions */}
       <div className="mt-8">
         <h2 className="text-lg font-medium text-gray-900">Quick Actions</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <button className="btn-outline">View Profile</button>
-          <button className="btn-outline">Change Password</button>
-          <button className="btn-outline">Notifications</button>
-          <button className="btn-outline">Settings</button>
+          <Button type="button" variant="outline">View Profile</Button>
+          <Button type="button" variant="outline">Change Password</Button>
+          <Button type="button" variant="outline">Notifications</Button>
+          <Button type="button" variant="outline">Settings</Button>
         </div>
       </div>
 
