@@ -17,7 +17,10 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "doctor": "npx react-doctor@latest"
+    "doctor": "npx react-doctor@latest",
+    "check-conventions": "bun run scripts/check_conventions.ts",
+    "check-dependencies": "bun run scripts/check_dependencies.ts",
+    "gauntlet": "bun run lint && bun run typecheck && bun run test && bun run check-conventions && bun run check-dependencies"
   },
   "dependencies": {
     "@tanstack/react-query": "5.100.14",
