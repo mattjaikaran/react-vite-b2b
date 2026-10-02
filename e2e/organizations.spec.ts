@@ -233,4 +233,16 @@ test.describe('No Organizations State', () => {
     // Should show create organization prompt
     await expect(page.getByRole('link', { name: /Create Organization/i })).toBeVisible()
   })
+
+  test('should open the new organization form from the create link', async ({ page }) => {
+    await mockAuthenticatedUser(page)
+    await mockOrganizations(page, [])
+
+    await page.goto('/dashboard')
+    await page.getByRole('link', { name: /Create Organization/i }).first().click()
+
+    await expect(page).toHaveURL('/organizations?create=1')
+    await expect(page.getByRole('heading', { name: 'New Organization' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /page not found/i })).toHaveCount(0)
+  })
 })

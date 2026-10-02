@@ -1,10 +1,15 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useOrganization, useCreateOrganization } from '@/lib/organizations'
 
 export default function OrganizationsPage() {
   const { organizations, currentOrg, setCurrentOrg } = useOrganization()
   const createOrg = useCreateOrganization()
-  const [showForm, setShowForm] = useState(false)
+  // `?create=1` opens the form so OrgSwitcher can link straight to it.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const showForm = searchParams.has('create')
+  const setShowForm = (open: boolean) =>
+    setSearchParams(open ? { create: '1' } : {}, { replace: true })
   const [newOrgName, setNewOrgName] = useState('')
   const [newOrgSlug, setNewOrgSlug] = useState('')
 
@@ -84,9 +89,6 @@ export default function OrganizationsPage() {
                     Switch
                   </button>
                 )}
-                <a href={`/organizations/${org.id}/settings`} className="btn-outline text-sm">
-                  Settings
-                </a>
               </div>
             </div>
           </div>

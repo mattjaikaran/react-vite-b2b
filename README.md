@@ -128,6 +128,17 @@ The template includes a complete authentication flow:
 
 ## Multi-tenancy
 
+### Organization creation
+
+Open `/organizations?create=1` to show the existing creation form.
+The organization switcher uses this URL from both its empty state and
+its menu. Close the form to remove the query parameter. Do not link to
+`/organizations/new` or an organization settings page; this template does
+not register those routes.
+
+Keep this React Router source distinct from mattstack's TanStack Router
+source mapping. Do not substitute it silently for the mapped frontend.
+
 ### Organization Context
 
 Use the organization context to manage the current organization:

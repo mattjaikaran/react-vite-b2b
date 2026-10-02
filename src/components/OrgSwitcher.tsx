@@ -13,7 +13,7 @@ export default function OrgSwitcher() {
 
   if (organizations.length === 0) {
     return (
-      <Link to="/organizations/new" className="btn-primary text-sm">
+      <Link to="/organizations?create=1" className="btn-primary text-sm">
         Create Organization
       </Link>
     )
@@ -75,7 +75,7 @@ export default function OrgSwitcher() {
               </li>
             ))}
             <li className="border-t">
-              <Link to="/organizations/new" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2 text-sm hover:bg-gray-50">
+              <Link to="/organizations?create=1" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2 text-sm hover:bg-gray-50">
                 + Create Organization
               </Link>
             </li>
