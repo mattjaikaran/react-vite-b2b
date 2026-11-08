@@ -16,7 +16,7 @@ export default function OrganizationsPage() {
   const handleCreateOrg = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newOrgName || !newOrgSlug) return
-    await createOrg.mutateAsync({ name: newOrgName, slug: newOrgSlug })
+    await createOrg.mutateAsync({ body: { name: newOrgName, slug: newOrgSlug } })
     setNewOrgName('')
     setNewOrgSlug('')
     setShowForm(false)

@@ -4,12 +4,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "bun run api:generate && vite",
+    "build": "bun run api:generate && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
-    "typecheck": "tsc --noEmit",
+    "api:generate": "bun run scripts/api-generate.ts",
+    "api:check": "bun run scripts/api-check.ts",
+    "typecheck": "bun run api:generate && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -20,7 +22,7 @@
     "doctor": "npx react-doctor@latest",
     "check-conventions": "bun run scripts/check_conventions.ts",
     "check-dependencies": "bun run scripts/check_dependencies.ts",
-    "gauntlet": "bun run lint && bun run typecheck && bun run test && bun run check-conventions && bun run check-dependencies"
+    "gauntlet": "bun run api:check && bun run lint && bun run typecheck && bun run test && bun run check-conventions && bun run check-dependencies"
   },
   "dependencies": {
     "@tanstack/react-query": "5.100.14",
@@ -30,7 +32,8 @@
     "react": "19.0.1",
     "react-dom": "19.0.1",
     "react-router-dom": "7.1.0",
-    "tailwind-merge": "2.4.0"
+    "tailwind-merge": "2.4.0",
+    "zod": "4.6.5"
   },
   "reactDoctor": {
     "rules": {
@@ -38,6 +41,7 @@
     }
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
     "@playwright/test": "1.50.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.2.0",

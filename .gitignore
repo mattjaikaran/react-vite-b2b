@@ -42,3 +42,6 @@ coverage
 # Cache
 .eslintcache
 *.tsbuildinfo
+
+# Generated API client (bun run api:generate)
+src/api/generated

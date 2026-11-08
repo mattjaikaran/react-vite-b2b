@@ -1,43 +1,22 @@
 import { createContext, use, useState, useMemo, useCallback, ReactNode } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from './api'
 
-// Types
-export interface Organization {
-  id: string
-  name: string
-  slug: string
-  logo_url: string | null
-  plan: string
-  role: string
-  is_active: boolean
-}
-
-export interface Team {
-  id: string
-  organization_id: string
-  name: string
-  slug: string
-  description: string
-  created_at: string
-}
-
-export interface Member {
-  id: string
-  user_id: number
-  user_email: string
-  organization_id: string
-  organization_name: string
-  role: string
-  is_active: boolean
-  created_at: string
-}
+import {
+  invitationCreateMutation,
+  memberListOptions,
+  memberListQueryKey,
+  organizationCreateMutation,
+  organizationListOptions,
+  organizationListQueryKey,
+  teamListOptions,
+} from '@/api/generated/@tanstack/react-query.gen'
+import type { OrganizationWithRole } from '@/api/generated/types.gen'
 
 interface OrganizationContextType {
-  organizations: Organization[]
-  currentOrg: Organization | null
+  organizations: OrganizationWithRole[]
+  currentOrg: OrganizationWithRole | null
   isLoading: boolean
-  setCurrentOrg: (org: Organization | null) => void
+  setCurrentOrg: (org: OrganizationWithRole | null) => void
   refreshOrganizations: () => void
 }
 
@@ -45,21 +24,13 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(u
 
 const CURRENT_ORG_KEY = 'current_organization_id'
 
-const fetchOrganizations = async (): Promise<Organization[]> => {
-  const { data } = await api.get('/organizations')
-  return data
-}
-
 export function OrganizationProvider({ children }: { children: ReactNode }) {
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(
     () => localStorage.getItem(CURRENT_ORG_KEY)
   )
   const queryClient = useQueryClient()
 
-  const { data: organizations = [], isLoading } = useQuery({
-    queryKey: ['organizations'],
-    queryFn: fetchOrganizations,
-  })
+  const { data: organizations = [], isLoading } = useQuery(organizationListOptions())
 
   // Derive currentOrg during render — no useEffect needed
   const currentOrg = useMemo(() => {
@@ -68,7 +39,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     return saved ?? organizations[0]
   }, [organizations, currentOrgId])
 
-  const setCurrentOrg = useCallback((org: Organization | null) => {
+  const setCurrentOrg = useCallback((org: OrganizationWithRole | null) => {
     const id = org?.id ?? null
     setCurrentOrgId(id)
     if (id) {
@@ -79,7 +50,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const refreshOrganizations = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['organizations'] })
+    queryClient.invalidateQueries({ queryKey: organizationListQueryKey() })
   }, [queryClient])
 
   const contextValue = useMemo(
@@ -104,22 +75,14 @@ export function useOrganization() {
 
 export function useTeams(orgId: string | undefined) {
   return useQuery({
-    queryKey: ['teams', orgId],
-    queryFn: async () => {
-      const { data } = await api.get(`/organizations/${orgId}/teams`)
-      return data as Team[]
-    },
+    ...teamListOptions({ path: { org_id: orgId ?? '' } }),
     enabled: !!orgId,
   })
 }
 
 export function useMembers(orgId: string | undefined) {
   return useQuery({
-    queryKey: ['members', orgId],
-    queryFn: async () => {
-      const { data } = await api.get(`/organizations/${orgId}/members`)
-      return data as Member[]
-    },
+    ...memberListOptions({ path: { org_id: orgId ?? '' } }),
     enabled: !!orgId,
   })
 }
@@ -127,21 +90,18 @@ export function useMembers(orgId: string | undefined) {
 export function useCreateOrganization() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (data: { name: string; slug: string }) => {
-      const response = await api.post('/organizations', data)
-      return response.data
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['organizations'] }),
+    ...organizationCreateMutation(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: organizationListQueryKey() }),
   })
 }
 
 export function useInviteMember() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ orgId, data }: { orgId: string; data: { email: string; role: string } }) => {
-      const response = await api.post(`/organizations/${orgId}/invitations`, data)
-      return response.data
-    },
-    onSuccess: (_, { orgId }) => queryClient.invalidateQueries({ queryKey: ['members', orgId] }),
+    ...invitationCreateMutation(),
+    onSuccess: (_, variables) =>
+      queryClient.invalidateQueries({
+        queryKey: memberListQueryKey({ path: { org_id: variables.path.org_id } }),
+      }),
   })
 }

@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 // Helper to mock authenticated state
 async function mockAuthenticatedUser(page: Page) {
@@ -29,8 +30,8 @@ async function mockAuthenticatedUser(page: Page) {
 }
 
 // Helper to mock organizations
-async function mockOrganizations(page: Page, orgs: any[]) {
-  await page.route('**/api/organizations', async (route) => {
+async function mockOrganizations(page: Page, orgs: unknown[]) {
+  await page.route('**/api/organizations/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -165,7 +166,7 @@ test.describe('Organization Pages', () => {
 
   test('should show create org button when no organizations exist', async ({ page }) => {
     // Override to return empty orgs
-    await page.route('**/api/organizations', async (route) => {
+    await page.route('**/api/organizations/', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -220,7 +221,7 @@ test.describe('No Organizations State', () => {
     await mockAuthenticatedUser(page)
 
     // Mock empty organizations
-    await page.route('**/api/organizations', async (route) => {
+    await page.route('**/api/organizations/', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

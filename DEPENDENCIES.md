@@ -5,6 +5,7 @@ listed here. Add a row when you add a dependency.
 
 | Package | Version |
 | --- | --- |
+| @hey-api/openapi-ts | 0.99.0 |
 | @playwright/test | 1.50.0 |
 | @tanstack/react-query | 5.100.14 |
 | @tanstack/react-query-devtools | 5.100.14 |
@@ -34,3 +35,4 @@ listed here. Add a row when you add a dependency.
 | typescript | 5.5.2 |
 | vite | 5.3.2 |
 | vitest | 3.0.0 |
+| zod | 4.6.5 |
