@@ -1,7 +1,11 @@
 import { useReducer, FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/lib/auth'
-import { api, getErrorMessage } from '@/lib/api'
+import {
+  authGetCurrentUserQueryKey,
+  authUpdateCurrentUserMutation,
+} from '@/api/generated/@tanstack/react-query.gen'
+import { getErrorMessage } from '@/lib/api'
 import { formatDateTime } from '@/lib/utils'
 import { Button, Input, Alert } from '@/components/ui'
 
@@ -40,12 +44,9 @@ export default function ProfilePage() {
   const { firstName, lastName, bio, error, success } = state
 
   const updateProfile = useMutation({
-    mutationFn: async (data: { first_name: string; last_name: string; bio: string }) => {
-      const response = await api.patch('/auth/me', data)
-      return response.data
-    },
+    ...authUpdateCurrentUserMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: authGetCurrentUserQueryKey() })
       dispatch({ type: 'SET_STATUS', error: '', success: 'Profile updated successfully!' })
     },
     onError: (err) => {
@@ -56,9 +57,11 @@ export default function ProfilePage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     updateProfile.mutate({
-      first_name: firstName,
-      last_name: lastName,
-      bio,
+      body: {
+        first_name: firstName,
+        last_name: lastName,
+        bio,
+      },
     })
   }
 

@@ -11,6 +11,7 @@ A modern React B2B starter template with multi-tenant organization support, buil
 - **TanStack Query** - Powerful data fetching and caching
 - **React Router v6** - Client-side routing
 - **Axios** - HTTP client with interceptors
+- **OpenAPI client** - Generated types, SDK, Zod schemas, and TanStack Query hooks from the backend contract with `@hey-api/openapi-ts`
 - **Zod** - Schema validation
 - **ESLint + Prettier** - Code linting and formatting
 - **Bun** - Fast JavaScript runtime and package manager
@@ -52,6 +53,9 @@ Visit http://localhost:5173
 
 ```
 src/
+├── api/
+│   ├── generated/           # Generated OpenAPI client (git-ignored build artifact)
+│   └── runtime-config.ts    # Passes the shared axios instance to the client
 ├── components/
 │   ├── ui/                  # Reusable UI components
 │   │   ├── Alert.tsx        # Alert/notification component
@@ -98,23 +102,56 @@ bun lint       # Run ESLint
 bun format     # Format with Prettier
 bun typecheck  # Run TypeScript check
 bun test       # Run tests
+bun api:generate  # Regenerate the OpenAPI client
+bun api:check     # Check the vendored contract still generates the client
 ```
 
 ## API Integration
 
 The template is configured to work with a Django B2B API backend (like [django-api-b2b](https://github.com/yourusername/django-api-b2b)).
 
+### Generated API Client
+
+`@hey-api/openapi-ts` generates the client from the backend's OpenAPI contract into `src/api/generated`:
+
+- `types.gen.ts` - request and response types
+- `sdk.gen.ts` - typed SDK functions
+- `zod.gen.ts` - Zod request, response, and definition schemas
+- `@tanstack/react-query.gen.ts` - query keys, query options, and mutation options
+
+A vendored copy of the paired backend contract lives at `backend/docs/openapi/openapi.json`, so a fresh checkout builds and typechecks before the backend exists. `src/api/generated` is a build artifact and is not committed: `bun dev`, `bun build`, and `bun typecheck` regenerate it first. To regenerate or validate it yourself:
+
+```bash
+bun api:generate  # Rewrite src/api/generated
+bun api:check     # Check the contract still generates every operation
+```
+
+In a mattstack monorepo, point the generator at the exported backend contract:
+
+```bash
+OPENAPI_INPUT=../backend/docs/openapi/openapi.json bun api:generate
+```
+
+Do not edit `src/api/generated`; change the contract and regenerate. The generated client receives the shared axios instance from `src/api/runtime-config.ts`, so the auth and token-refresh interceptors apply to every SDK call.
+
 ### Development Proxy
 
-In development, API requests to `/api/*` are proxied to `http://localhost:8000` (see `vite.config.ts`).
+In development, API requests to `/api/*` are proxied to `http://localhost:8000` (see `vite.config.ts`). Generated paths already include the `/api` prefix.
 
 ### Production
 
-Set the `VITE_API_URL` environment variable to your API URL:
+Set the `VITE_API_URL` environment variable to your API origin, without the `/api` path:
 
 ```env
 VITE_API_URL=https://api.example.com
 ```
+
+Requests go to `https://api.example.com/api/*`.
+
+> Upgrading from an older checkout: `VITE_API_URL` used to include `/api` because the
+> handwritten requests did not. Generated paths now carry the prefix, so remove the
+> trailing `/api` from deployments that set it; otherwise requests go to
+> `https://api.example.com/api/api/*`.
 
 ## Authentication
 
@@ -167,10 +204,9 @@ function MyComponent() {
 The API client automatically includes the organization ID in requests:
 
 ```typescript
-import { api } from '@/lib/api'
+import { teamList } from '@/api/generated/sdk.gen'
 
-// Organization ID is automatically added via X-Organization-ID header
-const teams = await api.get('/organizations/current/teams')
+const { data: teams } = await teamList({ path: { org_id: currentOrg.id } })
 ```
 
 ## UI Components
@@ -232,26 +268,37 @@ Uses TailwindCSS with custom utility classes defined in `src/index.css`:
 
 ### Adding API Endpoints
 
-Use the `api` instance from `src/lib/api.ts`:
+Add the operation to the backend contract, regenerate the client, and use the generated query or mutation options:
 
 ```typescript
-import { api } from '@/lib/api'
+import { useQuery } from '@tanstack/react-query'
+import { teamListOptions } from '@/api/generated/@tanstack/react-query.gen'
 
-const fetchTeams = async (orgId: string) => {
-  const { data } = await api.get(`/organizations/${orgId}/teams`)
-  return data
-}
+const { data: teams, isLoading } = useQuery(
+  teamListOptions({ path: { org_id: orgId } })
+)
+```
+
+Mutating endpoints take their path and body in the variables object:
+
+```typescript
+import { useMutation } from '@tanstack/react-query'
+import { teamCreateMutation } from '@/api/generated/@tanstack/react-query.gen'
+
+const createTeam = useMutation(teamCreateMutation())
+
+createTeam.mutate({
+  path: { org_id: orgId },
+  body: { name: 'Platform', slug: 'platform' },
+})
 ```
 
 ### TanStack Query
 
-```typescript
-import { useQuery } from '@tanstack/react-query'
+Keep data fetching in context modules such as `src/lib/auth.tsx` and `src/lib/organizations.tsx`; pages consume the hooks. Invalidate with the generated query key so the cache matches the SDK:
 
-const { data, isLoading, error } = useQuery({
-  queryKey: ['teams', orgId],
-  queryFn: () => fetchTeams(orgId),
-})
+```typescript
+queryClient.invalidateQueries({ queryKey: organizationListQueryKey() })
 ```
 
 ## Testing

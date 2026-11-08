@@ -16,7 +16,10 @@ export default function TeamPage() {
     e.preventDefault()
     if (!currentOrg) return
     try {
-      await inviteMember.mutateAsync({ orgId: currentOrg.id, data: { email: inviteEmail, role: inviteRole } })
+      await inviteMember.mutateAsync({
+        path: { org_id: currentOrg.id },
+        body: { email: inviteEmail, role: inviteRole },
+      })
       setInviteEmail('')
       setError('')
     } catch (err) {

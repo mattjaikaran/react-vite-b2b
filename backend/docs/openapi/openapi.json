@@ -1,0 +1,1065 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "My B2B API",
+    "version": "1.0.0",
+    "description": "A B2B multi-tenant API built with Django Ninja"
+  },
+  "servers": [],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "health_check",
+        "summary": "Health Check",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "auth_register",
+        "summary": "Register",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "auth_login",
+        "summary": "Login",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "operationId": "auth_refresh",
+        "summary": "Refresh",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshToken"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "auth_get_current_user",
+        "summary": "Get Current User",
+        "tags": ["Auth"],
+        "security": [{ "JWTAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "auth_update_current_user",
+        "summary": "Update Current User",
+        "tags": ["Auth"],
+        "security": [{ "JWTAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "operationId": "auth_change_password",
+        "summary": "Change Password",
+        "tags": ["Auth"],
+        "security": [{ "JWTAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/": {
+      "get": {
+        "operationId": "organization_list",
+        "summary": "List Organizations",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationWithRole"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "organization_create",
+        "summary": "Create Organization",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}": {
+      "get": {
+        "operationId": "organization_get",
+        "summary": "Get Organization",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "organization_update",
+        "summary": "Update Organization",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "organization_delete",
+        "summary": "Delete Organization",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}/teams": {
+      "get": {
+        "operationId": "team_list",
+        "summary": "List Teams",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Team"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "team_create",
+        "summary": "Create Team",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Team"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}/teams/{team_id}": {
+      "patch": {
+        "operationId": "team_update",
+        "summary": "Update Team",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Team"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "team_delete",
+        "summary": "Delete Team",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}/members": {
+      "get": {
+        "operationId": "member_list",
+        "summary": "List Members",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Membership"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}/members/{member_id}": {
+      "patch": {
+        "operationId": "member_update",
+        "summary": "Update Member",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MembershipUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Membership"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "member_remove",
+        "summary": "Remove Member",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}/invitations": {
+      "get": {
+        "operationId": "invitation_list",
+        "summary": "List Invitations",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invitation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "invitation_create",
+        "summary": "Create Invitation",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invitation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/invitations/{token}/accept": {
+      "post": {
+        "operationId": "invitation_accept",
+        "summary": "Accept Invitation",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Membership"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/organizations/{org_id}/invitations/{invitation_id}": {
+      "delete": {
+        "operationId": "invitation_cancel",
+        "summary": "Cancel Invitation",
+        "tags": ["Organizations"],
+        "security": [{ "JWTAuth": [] }],
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "invitation_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "JWTAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "title": "User",
+        "properties": {
+          "id": { "type": "integer", "title": "Id" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "username": { "type": "string", "title": "Username" },
+          "first_name": { "type": "string", "default": "", "title": "First Name" },
+          "last_name": { "type": "string", "default": "", "title": "Last Name" },
+          "avatar_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Avatar Url"
+          },
+          "bio": { "type": "string", "default": "", "title": "Bio" },
+          "is_active": { "type": "boolean", "default": true, "title": "Is Active" },
+          "date_joined": { "type": "string", "format": "date-time", "title": "Date Joined" }
+        },
+        "required": ["id", "email", "username", "avatar_url", "date_joined"]
+      },
+      "UserCreate": {
+        "type": "object",
+        "title": "UserCreate",
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "username": { "type": "string", "minLength": 3, "maxLength": 150, "title": "Username" },
+          "password": { "type": "string", "minLength": 8, "title": "Password" },
+          "first_name": { "type": "string", "default": "", "title": "First Name" },
+          "last_name": { "type": "string", "default": "", "title": "Last Name" }
+        },
+        "required": ["email", "username", "password"]
+      },
+      "UserUpdate": {
+        "type": "object",
+        "title": "UserUpdate",
+        "properties": {
+          "first_name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Last Name"
+          },
+          "avatar_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Avatar Url"
+          },
+          "bio": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Bio"
+          }
+        }
+      },
+      "ChangePassword": {
+        "type": "object",
+        "title": "ChangePassword",
+        "properties": {
+          "current_password": { "type": "string", "title": "Current Password" },
+          "new_password": { "type": "string", "minLength": 8, "title": "New Password" }
+        },
+        "required": ["current_password", "new_password"]
+      },
+      "Login": {
+        "type": "object",
+        "title": "Login",
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "password": { "type": "string", "title": "Password" }
+        },
+        "required": ["email", "password"]
+      },
+      "Token": {
+        "type": "object",
+        "title": "Token",
+        "properties": {
+          "access_token": { "type": "string", "title": "Access Token" },
+          "refresh_token": { "type": "string", "title": "Refresh Token" },
+          "token_type": { "type": "string", "default": "bearer", "title": "Token Type" }
+        },
+        "required": ["access_token", "refresh_token"]
+      },
+      "RefreshToken": {
+        "type": "object",
+        "title": "RefreshToken",
+        "properties": {
+          "refresh_token": { "type": "string", "title": "Refresh Token" }
+        },
+        "required": ["refresh_token"]
+      },
+      "Organization": {
+        "type": "object",
+        "title": "Organization",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "slug": { "type": "string", "title": "Slug" },
+          "logo_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Logo Url"
+          },
+          "website": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Website"
+          },
+          "plan": { "type": "string", "title": "Plan" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "required": ["id", "name", "slug", "logo_url", "website", "plan", "created_at"]
+      },
+      "OrganizationCreate": {
+        "type": "object",
+        "title": "OrganizationCreate",
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 255, "title": "Name" },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[a-z0-9-]+$",
+            "title": "Slug"
+          },
+          "logo_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Logo Url"
+          },
+          "website": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Website"
+          }
+        },
+        "required": ["name", "slug"]
+      },
+      "OrganizationUpdate": {
+        "type": "object",
+        "title": "OrganizationUpdate",
+        "properties": {
+          "name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Name"
+          },
+          "logo_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Logo Url"
+          },
+          "website": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Website"
+          }
+        }
+      },
+      "OrganizationWithRole": {
+        "type": "object",
+        "title": "OrganizationWithRole",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "slug": { "type": "string", "title": "Slug" },
+          "logo_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Logo Url"
+          },
+          "plan": { "type": "string", "title": "Plan" },
+          "role": { "type": "string", "title": "Role" },
+          "is_active": { "type": "boolean", "title": "Is Active" }
+        },
+        "required": ["id", "name", "slug", "logo_url", "plan", "role", "is_active"]
+      },
+      "Team": {
+        "type": "object",
+        "title": "Team",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "organization_id": { "type": "string", "format": "uuid", "title": "Organization Id" },
+          "name": { "type": "string", "title": "Name" },
+          "slug": { "type": "string", "title": "Slug" },
+          "description": { "type": "string", "default": "", "title": "Description" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "required": ["id", "organization_id", "name", "slug", "created_at"]
+      },
+      "TeamCreate": {
+        "type": "object",
+        "title": "TeamCreate",
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 255, "title": "Name" },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[a-z0-9-]+$",
+            "title": "Slug"
+          },
+          "description": { "type": "string", "default": "", "title": "Description" }
+        },
+        "required": ["name", "slug"]
+      },
+      "TeamUpdate": {
+        "type": "object",
+        "title": "TeamUpdate",
+        "properties": {
+          "name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Description"
+          }
+        }
+      },
+      "Membership": {
+        "type": "object",
+        "title": "Membership",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "user_id": { "type": "integer", "title": "User Id" },
+          "user_email": { "type": "string", "title": "User Email" },
+          "organization_id": { "type": "string", "format": "uuid", "title": "Organization Id" },
+          "organization_name": { "type": "string", "title": "Organization Name" },
+          "role": { "type": "string", "title": "Role" },
+          "is_active": { "type": "boolean", "title": "Is Active" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "user_email",
+          "organization_id",
+          "organization_name",
+          "role",
+          "is_active",
+          "created_at"
+        ]
+      },
+      "MembershipUpdate": {
+        "type": "object",
+        "title": "MembershipUpdate",
+        "properties": {
+          "role": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Role"
+          },
+          "is_active": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Is Active"
+          }
+        }
+      },
+      "Invitation": {
+        "type": "object",
+        "title": "Invitation",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "organization_id": { "type": "string", "format": "uuid", "title": "Organization Id" },
+          "organization_name": { "type": "string", "title": "Organization Name" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "role": { "type": "string", "title": "Role" },
+          "status": { "type": "string", "title": "Status" },
+          "invited_by_email": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Invited By Email"
+          },
+          "expires_at": { "type": "string", "format": "date-time", "title": "Expires At" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "required": [
+          "id",
+          "organization_id",
+          "organization_name",
+          "email",
+          "role",
+          "status",
+          "invited_by_email",
+          "expires_at",
+          "created_at"
+        ]
+      },
+      "InvitationCreate": {
+        "type": "object",
+        "title": "InvitationCreate",
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "role": { "type": "string", "default": "member", "title": "Role" }
+        },
+        "required": ["email"]
+      },
+      "Message": {
+        "type": "object",
+        "title": "Message",
+        "properties": {
+          "message": { "type": "string", "title": "Message" }
+        },
+        "required": ["message"]
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || '/api'
+// The generated client paths already include the backend's `/api` prefix.
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 // Create axios instance
 export const api = axios.create({
@@ -48,7 +49,7 @@ api.interceptors.response.use(
       const refreshToken = getRefreshToken()
       if (refreshToken) {
         try {
-          const response = await axios.post(`${API_URL}/auth/refresh`, {
+          const response = await axios.post(`${API_URL}/api/auth/refresh`, {
             refresh_token: refreshToken,
           })
 
