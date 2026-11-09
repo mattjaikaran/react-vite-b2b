@@ -304,7 +304,7 @@ queryClient.invalidateQueries({ queryKey: organizationListQueryKey() })
 ## Testing
 
 ```bash
-# Run tests
+# Run unit tests
 bun test
 
 # Run tests with coverage
@@ -312,7 +312,14 @@ bun test --coverage
 
 # Run tests in watch mode
 bun test --watch
+
+# Install the Playwright browser once, then run the end-to-end tests
+bunx playwright install chromium
+bun run test:e2e
 ```
+
+End-to-end runs write an HTML report to `playwright-report/` without opening a
+local server, so the command always exits with the test result.
 
 ## Deployment
 
