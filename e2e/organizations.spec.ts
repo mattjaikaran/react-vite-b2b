@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 // Helper to mock authenticated state
 async function mockAuthenticatedUser(page: Page) {
