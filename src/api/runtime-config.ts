@@ -1,6 +1,6 @@
-import { api } from '@/lib/api'
+import { api } from "@/lib/api";
 
-import type { CreateClientConfig } from './generated/client.gen'
+import type { CreateClientConfig } from "./generated/client.gen";
 
 /**
  * Called by the generated client on initialization. Passing the shared axios
@@ -9,4 +9,4 @@ import type { CreateClientConfig } from './generated/client.gen'
 export const createClientConfig: CreateClientConfig = (override) => ({
   ...override,
   axios: api,
-})
+});

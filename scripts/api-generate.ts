@@ -1,6 +1,6 @@
-import { createClient } from '@hey-api/openapi-ts'
+import { createClient } from "@hey-api/openapi-ts";
 
-import config from '../openapi-ts.config'
+import config from "../openapi-ts.config";
 
 /**
  * Generate the OpenAPI client from the contract selected by the config.
@@ -8,11 +8,11 @@ import config from '../openapi-ts.config'
  * without touching the committed `src/api/generated`.
  */
 export async function generateApi(output?: string) {
-  const resolved = await config
+  const resolved = await config;
   await createClient({
     ...resolved,
     output: output ?? (resolved.output as string),
-  })
+  });
 }
 
-if (import.meta.main) await generateApi()
+if (import.meta.main) await generateApi();

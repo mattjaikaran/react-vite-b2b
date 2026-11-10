@@ -1,38 +1,47 @@
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useOrganization, useCreateOrganization } from '@/lib/organizations'
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useOrganization, useCreateOrganization } from "@/lib/organizations";
 
 export default function OrganizationsPage() {
-  const { organizations, currentOrg, setCurrentOrg } = useOrganization()
-  const createOrg = useCreateOrganization()
+  const { organizations, currentOrg, setCurrentOrg } = useOrganization();
+  const createOrg = useCreateOrganization();
   // `?create=1` opens the form so OrgSwitcher can link straight to it.
-  const [searchParams, setSearchParams] = useSearchParams()
-  const showForm = searchParams.has('create')
+  const [searchParams, setSearchParams] = useSearchParams();
+  const showForm = searchParams.has("create");
   const setShowForm = (open: boolean) =>
-    setSearchParams(open ? { create: '1' } : {}, { replace: true })
-  const [newOrgName, setNewOrgName] = useState('')
-  const [newOrgSlug, setNewOrgSlug] = useState('')
+    setSearchParams(open ? { create: "1" } : {}, { replace: true });
+  const [newOrgName, setNewOrgName] = useState("");
+  const [newOrgSlug, setNewOrgSlug] = useState("");
 
   const handleCreateOrg = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newOrgName || !newOrgSlug) return
-    await createOrg.mutateAsync({ body: { name: newOrgName, slug: newOrgSlug } })
-    setNewOrgName('')
-    setNewOrgSlug('')
-    setShowForm(false)
-  }
+    e.preventDefault();
+    if (!newOrgName || !newOrgSlug) return;
+    await createOrg.mutateAsync({
+      body: { name: newOrgName, slug: newOrgSlug },
+    });
+    setNewOrgName("");
+    setNewOrgSlug("");
+    setShowForm(false);
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Organizations</h1>
-        <button type="button" onClick={() => setShowForm(!showForm)} className="btn-primary">
+        <button
+          type="button"
+          onClick={() => setShowForm(!showForm)}
+          className="btn-primary"
+        >
           Create Organization
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreateOrg} className="mb-6 rounded-lg border bg-white p-6 shadow-sm">
+        <form
+          onSubmit={handleCreateOrg}
+          className="mb-6 rounded-lg border bg-white p-6 shadow-sm"
+        >
           <h2 className="mb-4 text-lg font-semibold">New Organization</h2>
           <div className="flex gap-x-4">
             <input
@@ -53,8 +62,12 @@ export default function OrganizationsPage() {
               className="input flex-1"
               required
             />
-            <button type="submit" className="btn-primary" disabled={createOrg.isPending}>
-              {createOrg.isPending ? 'Creating…' : 'Create'}
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={createOrg.isPending}
+            >
+              {createOrg.isPending ? "Creating…" : "Create"}
             </button>
           </div>
         </form>
@@ -62,7 +75,10 @@ export default function OrganizationsPage() {
 
       <div className="space-y-4">
         {organizations.map((org) => (
-          <div key={org.id} className="rounded-lg border bg-white p-6 shadow-sm">
+          <div
+            key={org.id}
+            className="rounded-lg border bg-white p-6 shadow-sm"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-x-4">
                 <div className="flex size-12 items-center justify-center rounded-lg bg-primary-100 text-xl font-bold text-primary-700">
@@ -95,5 +111,5 @@ export default function OrganizationsPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }
