@@ -773,15 +773,31 @@
           "id": { "type": "integer", "title": "Id" },
           "email": { "type": "string", "format": "email", "title": "Email" },
           "username": { "type": "string", "title": "Username" },
-          "first_name": { "type": "string", "default": "", "title": "First Name" },
-          "last_name": { "type": "string", "default": "", "title": "Last Name" },
+          "first_name": {
+            "type": "string",
+            "default": "",
+            "title": "First Name"
+          },
+          "last_name": {
+            "type": "string",
+            "default": "",
+            "title": "Last Name"
+          },
           "avatar_url": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Avatar Url"
           },
           "bio": { "type": "string", "default": "", "title": "Bio" },
-          "is_active": { "type": "boolean", "default": true, "title": "Is Active" },
-          "date_joined": { "type": "string", "format": "date-time", "title": "Date Joined" }
+          "is_active": {
+            "type": "boolean",
+            "default": true,
+            "title": "Is Active"
+          },
+          "date_joined": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Date Joined"
+          }
         },
         "required": ["id", "email", "username", "avatar_url", "date_joined"]
       },
@@ -790,9 +806,18 @@
         "title": "UserCreate",
         "properties": {
           "email": { "type": "string", "format": "email", "title": "Email" },
-          "username": { "type": "string", "minLength": 3, "maxLength": 150, "title": "Username" },
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 150,
+            "title": "Username"
+          },
           "password": { "type": "string", "minLength": 8, "title": "Password" },
-          "first_name": { "type": "string", "default": "", "title": "First Name" },
+          "first_name": {
+            "type": "string",
+            "default": "",
+            "title": "First Name"
+          },
           "last_name": { "type": "string", "default": "", "title": "Last Name" }
         },
         "required": ["email", "username", "password"]
@@ -824,7 +849,11 @@
         "title": "ChangePassword",
         "properties": {
           "current_password": { "type": "string", "title": "Current Password" },
-          "new_password": { "type": "string", "minLength": 8, "title": "New Password" }
+          "new_password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "New Password"
+          }
         },
         "required": ["current_password", "new_password"]
       },
@@ -843,7 +872,11 @@
         "properties": {
           "access_token": { "type": "string", "title": "Access Token" },
           "refresh_token": { "type": "string", "title": "Refresh Token" },
-          "token_type": { "type": "string", "default": "bearer", "title": "Token Type" }
+          "token_type": {
+            "type": "string",
+            "default": "bearer",
+            "title": "Token Type"
+          }
         },
         "required": ["access_token", "refresh_token"]
       },
@@ -871,15 +904,32 @@
             "title": "Website"
           },
           "plan": { "type": "string", "title": "Plan" },
-          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
         },
-        "required": ["id", "name", "slug", "logo_url", "website", "plan", "created_at"]
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "logo_url",
+          "website",
+          "plan",
+          "created_at"
+        ]
       },
       "OrganizationCreate": {
         "type": "object",
         "title": "OrganizationCreate",
         "properties": {
-          "name": { "type": "string", "minLength": 1, "maxLength": 255, "title": "Name" },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "title": "Name"
+          },
           "slug": {
             "type": "string",
             "minLength": 1,
@@ -931,18 +981,38 @@
           "role": { "type": "string", "title": "Role" },
           "is_active": { "type": "boolean", "title": "Is Active" }
         },
-        "required": ["id", "name", "slug", "logo_url", "plan", "role", "is_active"]
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "logo_url",
+          "plan",
+          "role",
+          "is_active"
+        ]
       },
       "Team": {
         "type": "object",
         "title": "Team",
         "properties": {
           "id": { "type": "string", "format": "uuid", "title": "Id" },
-          "organization_id": { "type": "string", "format": "uuid", "title": "Organization Id" },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
           "name": { "type": "string", "title": "Name" },
           "slug": { "type": "string", "title": "Slug" },
-          "description": { "type": "string", "default": "", "title": "Description" },
-          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+          "description": {
+            "type": "string",
+            "default": "",
+            "title": "Description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
         },
         "required": ["id", "organization_id", "name", "slug", "created_at"]
       },
@@ -950,7 +1020,12 @@
         "type": "object",
         "title": "TeamCreate",
         "properties": {
-          "name": { "type": "string", "minLength": 1, "maxLength": 255, "title": "Name" },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "title": "Name"
+          },
           "slug": {
             "type": "string",
             "minLength": 1,
@@ -958,7 +1033,11 @@
             "pattern": "^[a-z0-9-]+$",
             "title": "Slug"
           },
-          "description": { "type": "string", "default": "", "title": "Description" }
+          "description": {
+            "type": "string",
+            "default": "",
+            "title": "Description"
+          }
         },
         "required": ["name", "slug"]
       },
@@ -983,11 +1062,22 @@
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "user_id": { "type": "integer", "title": "User Id" },
           "user_email": { "type": "string", "title": "User Email" },
-          "organization_id": { "type": "string", "format": "uuid", "title": "Organization Id" },
-          "organization_name": { "type": "string", "title": "Organization Name" },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "organization_name": {
+            "type": "string",
+            "title": "Organization Name"
+          },
           "role": { "type": "string", "title": "Role" },
           "is_active": { "type": "boolean", "title": "Is Active" },
-          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
         },
         "required": [
           "id",
@@ -1019,8 +1109,15 @@
         "title": "Invitation",
         "properties": {
           "id": { "type": "string", "format": "uuid", "title": "Id" },
-          "organization_id": { "type": "string", "format": "uuid", "title": "Organization Id" },
-          "organization_name": { "type": "string", "title": "Organization Name" },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "organization_name": {
+            "type": "string",
+            "title": "Organization Name"
+          },
           "email": { "type": "string", "format": "email", "title": "Email" },
           "role": { "type": "string", "title": "Role" },
           "status": { "type": "string", "title": "Status" },
@@ -1028,8 +1125,16 @@
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Invited By Email"
           },
-          "expires_at": { "type": "string", "format": "date-time", "title": "Expires At" },
-          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
         },
         "required": [
           "id",
