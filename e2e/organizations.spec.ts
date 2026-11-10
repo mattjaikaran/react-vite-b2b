@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 
 // Helper to mock authenticated state
 async function mockAuthenticatedUser(page: Page) {
@@ -150,9 +149,9 @@ test.describe("Organization Switcher", () => {
     await page.locator('button:has-text("Acme Corp")').click();
 
     // Should show roles for each organization
-    await expect(page.getByText("admin")).toBeVisible();
-    await expect(page.getByText("member")).toBeVisible();
-    await expect(page.getByText("owner")).toBeVisible();
+    await expect(page.getByRole("option", { name: /admin/i })).toBeVisible();
+    await expect(page.getByRole("option", { name: /member/i })).toBeVisible();
+    await expect(page.getByRole("option", { name: /owner/i })).toBeVisible();
   });
 });
 
