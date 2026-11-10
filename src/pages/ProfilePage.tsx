@@ -1,81 +1,69 @@
-import { useReducer, FormEvent } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/lib/auth";
+import { useReducer, FormEvent } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@/lib/auth'
 import {
   authGetCurrentUserQueryKey,
   authUpdateCurrentUserMutation,
-} from "@/api/generated/@tanstack/react-query.gen";
-import { getErrorMessage } from "@/lib/api";
-import { formatDateTime } from "@/lib/utils";
-import { Button, Input, Alert } from "@/components/ui";
+} from '@/api/generated/@tanstack/react-query.gen'
+import { getErrorMessage } from '@/lib/api'
+import { formatDateTime } from '@/lib/utils'
+import { Button, Input, Alert } from '@/components/ui'
 
 interface ProfileState {
-  firstName: string;
-  lastName: string;
-  bio: string;
-  error: string;
-  success: string;
+  firstName: string
+  lastName: string
+  bio: string
+  error: string
+  success: string
 }
 
 type ProfileAction =
-  | {
-      type: "SET_FIELD";
-      field: keyof Pick<ProfileState, "firstName" | "lastName" | "bio">;
-      value: string;
-    }
-  | { type: "SET_STATUS"; error: string; success: string };
+  | { type: 'SET_FIELD'; field: keyof Pick<ProfileState, 'firstName' | 'lastName' | 'bio'>; value: string }
+  | { type: 'SET_STATUS'; error: string; success: string }
 
 function reducer(state: ProfileState, action: ProfileAction): ProfileState {
   switch (action.type) {
-    case "SET_FIELD":
-      return { ...state, [action.field]: action.value };
-    case "SET_STATUS":
-      return { ...state, error: action.error, success: action.success };
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value }
+    case 'SET_STATUS':
+      return { ...state, error: action.error, success: action.success }
   }
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
 
   const [state, dispatch] = useReducer(reducer, {
-    firstName: user?.first_name ?? "",
-    lastName: user?.last_name ?? "",
-    bio: user?.bio ?? "",
-    error: "",
-    success: "",
-  });
-  const { firstName, lastName, bio, error, success } = state;
+    firstName: user?.first_name ?? '',
+    lastName: user?.last_name ?? '',
+    bio: user?.bio ?? '',
+    error: '',
+    success: '',
+  })
+  const { firstName, lastName, bio, error, success } = state
 
   const updateProfile = useMutation({
     ...authUpdateCurrentUserMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: authGetCurrentUserQueryKey() });
-      dispatch({
-        type: "SET_STATUS",
-        error: "",
-        success: "Profile updated successfully!",
-      });
+      queryClient.invalidateQueries({ queryKey: authGetCurrentUserQueryKey() })
+      dispatch({ type: 'SET_STATUS', error: '', success: 'Profile updated successfully!' })
     },
     onError: (err) => {
-      dispatch({
-        type: "SET_STATUS",
-        error: getErrorMessage(err),
-        success: "",
-      });
+      dispatch({ type: 'SET_STATUS', error: getErrorMessage(err), success: '' })
     },
-  });
+  })
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     updateProfile.mutate({
       body: {
         first_name: firstName,
         last_name: lastName,
         bio,
       },
-    });
-  };
+    })
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -85,9 +73,7 @@ export default function ProfilePage() {
         {/* Account info */}
         <div className="overflow-hidden rounded-lg bg-white shadow">
           <div className="px-4 py-5 sm:p-6">
-            <h2 className="text-lg font-medium text-gray-900">
-              Account Information
-            </h2>
+            <h2 className="text-lg font-medium text-gray-900">Account Information</h2>
             <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <dt className="text-sm font-medium text-gray-500">Email</dt>
@@ -98,11 +84,9 @@ export default function ProfilePage() {
                 <dd className="mt-1 text-sm text-gray-900">{user?.username}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Member since
-                </dt>
+                <dt className="text-sm font-medium text-gray-500">Member since</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {user?.date_joined ? formatDateTime(user.date_joined) : "N/A"}
+                  {user?.date_joined ? formatDateTime(user.date_joined) : 'N/A'}
                 </dd>
               </div>
               <div>
@@ -127,9 +111,7 @@ export default function ProfilePage() {
         <div className="overflow-hidden rounded-lg bg-white shadow">
           <form onSubmit={handleSubmit}>
             <div className="px-4 py-5 sm:p-6">
-              <h2 className="text-lg font-medium text-gray-900">
-                Edit Profile
-              </h2>
+              <h2 className="text-lg font-medium text-gray-900">Edit Profile</h2>
 
               {error && (
                 <div className="mt-4">
@@ -150,13 +132,7 @@ export default function ProfilePage() {
                   aria-label="First name"
                   label="First name"
                   value={firstName}
-                  onChange={(e) =>
-                    dispatch({
-                      type: "SET_FIELD",
-                      field: "firstName",
-                      value: e.target.value,
-                    })
-                  }
+                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'firstName', value: e.target.value })}
                 />
 
                 <Input
@@ -165,20 +141,11 @@ export default function ProfilePage() {
                   aria-label="Last name"
                   label="Last name"
                   value={lastName}
-                  onChange={(e) =>
-                    dispatch({
-                      type: "SET_FIELD",
-                      field: "lastName",
-                      value: e.target.value,
-                    })
-                  }
+                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'lastName', value: e.target.value })}
                 />
 
                 <div className="sm:col-span-2">
-                  <label
-                    htmlFor="bio"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
                     Bio
                   </label>
                   <textarea
@@ -186,13 +153,7 @@ export default function ProfilePage() {
                     rows={3}
                     aria-label="Bio"
                     value={bio}
-                    onChange={(e) =>
-                      dispatch({
-                        type: "SET_FIELD",
-                        field: "bio",
-                        value: e.target.value,
-                      })
-                    }
+                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'bio', value: e.target.value })}
                     className="input mt-1 w-full"
                     placeholder="Tell us about yourself..."
                   />
@@ -201,17 +162,13 @@ export default function ProfilePage() {
             </div>
 
             <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-              <Button
-                type="submit"
-                disabled={updateProfile.isPending}
-                loading={updateProfile.isPending}
-              >
-                {updateProfile.isPending ? "Saving…" : "Save changes"}
+              <Button type="submit" disabled={updateProfile.isPending} loading={updateProfile.isPending}>
+                {updateProfile.isPending ? 'Saving…' : 'Save changes'}
               </Button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  );
+  )
 }

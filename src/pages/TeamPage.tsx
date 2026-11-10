@@ -1,43 +1,34 @@
-import { useState } from "react";
-import {
-  useOrganization,
-  useTeams,
-  useMembers,
-  useInviteMember,
-} from "@/lib/organizations";
-import { getErrorMessage } from "@/lib/api";
+import { useState } from 'react'
+import { useOrganization, useTeams, useMembers, useInviteMember } from '@/lib/organizations'
+import { getErrorMessage } from '@/lib/api'
 
 export default function TeamPage() {
-  const { currentOrg } = useOrganization();
-  const { data: teams = [], isLoading: teamsLoading } = useTeams(
-    currentOrg?.id,
-  );
-  const { data: members = [], isLoading: membersLoading } = useMembers(
-    currentOrg?.id,
-  );
-  const inviteMember = useInviteMember();
+  const { currentOrg } = useOrganization()
+  const { data: teams = [], isLoading: teamsLoading } = useTeams(currentOrg?.id)
+  const { data: members = [], isLoading: membersLoading } = useMembers(currentOrg?.id)
+  const inviteMember = useInviteMember()
 
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("member");
-  const [error, setError] = useState("");
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteRole, setInviteRole] = useState('member')
+  const [error, setError] = useState('')
 
   const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentOrg) return;
+    e.preventDefault()
+    if (!currentOrg) return
     try {
       await inviteMember.mutateAsync({
         path: { org_id: currentOrg.id },
         body: { email: inviteEmail, role: inviteRole },
-      });
-      setInviteEmail("");
-      setError("");
+      })
+      setInviteEmail('')
+      setError('')
     } catch (err) {
-      setError(getErrorMessage(err));
+      setError(getErrorMessage(err))
     }
-  };
+  }
 
   if (!currentOrg) {
-    return <div className="p-8 text-center">Select an organization first</div>;
+    return <div className="p-8 text-center">Select an organization first</div>
   }
 
   return (
@@ -67,12 +58,8 @@ export default function TeamPage() {
             <option value="admin">Admin</option>
             <option value="viewer">Viewer</option>
           </select>
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={inviteMember.isPending}
-          >
-            {inviteMember.isPending ? "Sending…" : "Invite"}
+          <button type="submit" className="btn-primary" disabled={inviteMember.isPending}>
+            {inviteMember.isPending ? 'Sending…' : 'Invite'}
           </button>
         </form>
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
@@ -88,20 +75,13 @@ export default function TeamPage() {
         ) : (
           <div className="divide-y">
             {members.map((member) => (
-              <div
-                key={member.id}
-                className="flex items-center justify-between px-6 py-4"
-              >
+              <div key={member.id} className="flex items-center justify-between px-6 py-4">
                 <div>
                   <p className="font-medium">{member.user_email}</p>
-                  <p className="text-sm text-gray-500 capitalize">
-                    {member.role}
-                  </p>
+                  <p className="text-sm text-gray-500 capitalize">{member.role}</p>
                 </div>
-                <span
-                  className={`rounded-full px-2 py-1 text-xs ${member.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}
-                >
-                  {member.is_active ? "Active" : "Inactive"}
+                <span className={`rounded-full px-2 py-1 text-xs ${member.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                  {member.is_active ? 'Active' : 'Inactive'}
                 </span>
               </div>
             ))}
@@ -123,14 +103,12 @@ export default function TeamPage() {
             {teams.map((team) => (
               <div key={team.id} className="px-6 py-4">
                 <p className="font-medium">{team.name}</p>
-                <p className="text-sm text-gray-500">
-                  {team.description || "No description"}
-                </p>
+                <p className="text-sm text-gray-500">{team.description || 'No description'}</p>
               </div>
             ))}
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }
