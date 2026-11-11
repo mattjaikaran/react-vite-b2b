@@ -108,7 +108,7 @@ bun api:check     # Check the vendored contract still generates the client
 
 ## API Integration
 
-The template is configured to work with a Django B2B API backend (like [django-api-b2b](https://github.com/yourusername/django-api-b2b)).
+The template is configured to work with a Django B2B API backend (like [django-api-b2b](https://github.com/mattjaikaran/django-api-b2b)).
 
 ### Generated API Client
 
