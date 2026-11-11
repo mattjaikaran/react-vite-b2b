@@ -14,6 +14,9 @@ dist-ssr
 *.swp
 *.swo
 
+# Personal agent config
+*.local.*
+
 # OS
 .DS_Store
 Thumbs.db

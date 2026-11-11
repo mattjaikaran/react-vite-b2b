@@ -101,7 +101,7 @@ bun preview    # Preview production build
 bun lint       # Run ESLint
 bun format     # Format with Prettier
 bun typecheck  # Run TypeScript check
-bun test       # Run tests
+bun run test   # Run tests
 bun api:generate  # Regenerate the OpenAPI client
 bun api:check     # Check the vendored contract still generates the client
 ```
@@ -305,13 +305,13 @@ queryClient.invalidateQueries({ queryKey: organizationListQueryKey() })
 
 ```bash
 # Run unit tests
-bun test
+bun run test
 
 # Run tests with coverage
-bun test --coverage
+bun run test:coverage
 
 # Run tests in watch mode
-bun test --watch
+bun run test:watch
 
 # Install the Playwright browser once, then run the end-to-end tests
 bunx playwright install chromium
