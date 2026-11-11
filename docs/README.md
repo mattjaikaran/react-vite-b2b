@@ -5,6 +5,8 @@ short rules there and the detail here.
 
 - [Architecture](architecture.md) — runtime shape, providers, data flow, and
   the generated API client.
+- [Architecture decision records](adr/README.md) — numbered records of
+  durable decisions.
 - [Code standards](code-standards.md) — TypeScript, component, styling, and
   data-fetching rules.
 - [Testing](testing.md) — Vitest and Playwright mechanics.
