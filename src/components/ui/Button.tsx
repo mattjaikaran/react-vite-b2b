@@ -46,11 +46,7 @@ function Button({
       {...props}
     >
       {loading && (
-        <svg
-          className="-ml-1 mr-2 size-4 animate-spin"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg className="-ml-1 mr-2 size-4 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle
             className="opacity-25"
             cx="12"

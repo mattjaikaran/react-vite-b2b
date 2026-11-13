@@ -239,7 +239,10 @@ test.describe('No Organizations State', () => {
     await mockOrganizations(page, [])
 
     await page.goto('/dashboard')
-    await page.getByRole('link', { name: /Create Organization/i }).first().click()
+    await page
+      .getByRole('link', { name: /Create Organization/i })
+      .first()
+      .click()
 
     await expect(page).toHaveURL('/organizations?create=1')
     await expect(page.getByRole('heading', { name: 'New Organization' })).toBeVisible()

@@ -17,11 +17,13 @@ jobs:
     timeout-minutes: 5
     outputs:
       code: ${{ steps.diff.outputs.code }}
+      frontend: ${{ steps.diff.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # Docs and spec only changes skip the jobs that need `changes`.
+      # Docs and spec only changes skip the jobs that gate on `code`.
+      # Playwright also needs `frontend` (app, test or build config paths).
       # Workflow files count as code. Non pull_request events always run.
       - name: Detect code changes
         id: diff
@@ -31,18 +33,130 @@ jobs:
         run: |
           if [ "$EVENT" != "pull_request" ]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if git diff --name-only "$BASE_SHA" HEAD | grep -qvE '^(tasks/specs/|docs/|\.github/ISSUE_TEMPLATE/)|\.md$'; then
+          files=$(git diff --name-only "$BASE_SHA" HEAD)
+          if echo "$files" | grep -qE '^(src/|e2e/|scripts/|backend/|playwright\.config|vite\.config|openapi-ts\.config|tsconfig|postcss\.config|tailwind\.config|index\.html|package\.json|bun\.lock|\.github/workflows/)'; then
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend=false" >> "$GITHUB_OUTPUT"
+          fi
+          if echo "$files" | grep -qvE '^(tasks/specs/|docs/|\.github/ISSUE_TEMPLATE/)|\.md$'; then
             echo "code=true" >> "$GITHUB_OUTPUT"
           else
             echo "code=false" >> "$GITHUB_OUTPUT"
           fi
-  lint-and-test:
+
+  oxlint:
+    name: Oxlint
     runs-on: ubuntu-latest
     needs: changes
     if: needs.changes.outputs.code == 'true'
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint:strict
+
+  oxfmt:
+    name: Oxfmt check
+    runs-on: ubuntu-latest
+    # oxfmt checks Markdown too, so docs-only changes still run it.
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check formatting
+        run: bun run format:check
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run typecheck
+
+  unit-test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run tests
+        run: bun run test
+
+  react-doctor:
+    name: React doctor
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: React doctor
+        run: bun run doctor
+
+  check-agents:
+    name: Check agent docs
+    runs-on: ubuntu-latest
+    # Reads AGENTS.md and the tracked files, so docs-only changes still run it.
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,21 +172,34 @@ jobs:
       - name: Check agent docs
         run: bun run check-agents
 
-      - name: Type check
-        run: bun run typecheck
+  check-dependencies:
+    name: Check dependencies
+    runs-on: ubuntu-latest
+    # Reads DEPENDENCIES.md, so docs-only changes still run it.
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Lint
-        run: bun run lint
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-      - name: Run tests
-        run: bun run test
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
-  e2e:
+      - name: Check dependencies
+        run: bun run check-dependencies
+
+  playwright:
+    name: Playwright journeys
     # Playwright 1.50.0 has no dependency list for ubuntu 26.04, so
     # `playwright install --with-deps` fails there; keep e2e on 24.04.
     runs-on: ubuntu-24.04
-    needs: lint-and-test
-
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,9 +227,11 @@ jobs:
           retention-days: 7
 
   build:
+    name: Build
     runs-on: ubuntu-latest
-    needs: [lint-and-test, e2e]
-
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4

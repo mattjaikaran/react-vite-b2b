@@ -14,10 +14,7 @@ function Input({ ref, className, label, error, helperText, id, ...props }: Input
   return (
     <div className="w-full">
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-1">
           {label}
         </label>
       )}
@@ -36,9 +33,7 @@ function Input({ ref, className, label, error, helperText, id, ...props }: Input
         {...props}
       />
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-      {helperText && !error && (
-        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
-      )}
+      {helperText && !error && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
     </div>
   )
 }

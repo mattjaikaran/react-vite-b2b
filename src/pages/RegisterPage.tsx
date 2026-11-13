@@ -14,7 +14,11 @@ interface RegisterState {
 }
 
 type RegisterAction =
-  | { type: 'SET_FIELD'; field: keyof Pick<RegisterState, 'email' | 'username' | 'password' | 'confirmPassword'>; value: string }
+  | {
+      type: 'SET_FIELD'
+      field: keyof Pick<RegisterState, 'email' | 'username' | 'password' | 'confirmPassword'>
+      value: string
+    }
   | { type: 'SET_ERROR'; error: string }
   | { type: 'SET_LOADING'; isLoading: boolean }
 
@@ -89,9 +93,7 @@ export default function RegisterPage() {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <Alert variant="error">{error}</Alert>
-          )}
+          {error && <Alert variant="error">{error}</Alert>}
 
           <div className="space-y-4">
             <Input
@@ -103,7 +105,9 @@ export default function RegisterPage() {
               aria-label="Email address"
               label="Email address"
               value={email}
-              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })}
+              onChange={(e) =>
+                dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })
+              }
               placeholder="you@example.com"
             />
 
@@ -116,7 +120,9 @@ export default function RegisterPage() {
               aria-label="Username"
               label="Username"
               value={username}
-              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'username', value: e.target.value })}
+              onChange={(e) =>
+                dispatch({ type: 'SET_FIELD', field: 'username', value: e.target.value })
+              }
               placeholder="johndoe"
             />
 
@@ -129,7 +135,9 @@ export default function RegisterPage() {
               aria-label="Password"
               label="Password"
               value={password}
-              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'password', value: e.target.value })}
+              onChange={(e) =>
+                dispatch({ type: 'SET_FIELD', field: 'password', value: e.target.value })
+              }
               placeholder="••••••••"
             />
 
@@ -142,7 +150,9 @@ export default function RegisterPage() {
               aria-label="Confirm Password"
               label="Confirm Password"
               value={confirmPassword}
-              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: e.target.value })}
+              onChange={(e) =>
+                dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: e.target.value })
+              }
               placeholder="••••••••"
             />
           </div>

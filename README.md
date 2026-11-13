@@ -13,7 +13,7 @@ A modern React B2B starter template with multi-tenant organization support, buil
 - **Axios** - HTTP client with interceptors
 - **OpenAPI client** - Generated types, SDK, Zod schemas, and TanStack Query hooks from the backend contract with `@hey-api/openapi-ts`
 - **Zod** - Schema validation
-- **ESLint + Prettier** - Code linting and formatting
+- **Oxlint + Oxfmt** - Code linting and formatting
 - **Bun** - Fast JavaScript runtime and package manager
 - **Multi-tenancy** - Organization switching and context
 - **B2B Components** - Organization switcher, team management UI
@@ -27,22 +27,26 @@ A modern React B2B starter template with multi-tenant organization support, buil
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/react-vite-b2b.git myapp
 cd myapp
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
 ```
 
 3. Copy environment file:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Start development server:
+
 ```bash
 bun dev
 ```
@@ -98,8 +102,8 @@ src/
 bun dev        # Start development server
 bun build      # Build for production
 bun preview    # Preview production build
-bun lint       # Run ESLint
-bun format     # Format with Prettier
+bun lint       # Lint with Oxlint
+bun format     # Format with Oxfmt
 bun typecheck  # Run TypeScript check
 bun run test   # Run tests
 bun api:generate  # Regenerate the OpenAPI client
@@ -274,9 +278,7 @@ Add the operation to the backend contract, regenerate the client, and use the ge
 import { useQuery } from '@tanstack/react-query'
 import { teamListOptions } from '@/api/generated/@tanstack/react-query.gen'
 
-const { data: teams, isLoading } = useQuery(
-  teamListOptions({ path: { org_id: orgId } })
-)
+const { data: teams, isLoading } = useQuery(teamListOptions({ path: { org_id: orgId } }))
 ```
 
 Mutating endpoints take their path and body in the variables object:

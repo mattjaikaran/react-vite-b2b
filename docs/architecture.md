@@ -84,7 +84,7 @@ without touching `src/api/generated`.
 
 ## Conventions and gates
 
-`bun lint`, `bun typecheck`, `bun run check-agents`, and
-`bun run check-dependencies` are the CI gates. `bun run gauntlet` runs the
-local combination, including the unit suite. See
+`bun run lint:strict`, `bun run format:check`, `bun run typecheck`,
+`bun run check-agents`, and `bun run check-dependencies` are the CI gates.
+`bun run gauntlet` runs the local combination, including the unit suite. See
 [Command reference](commands.md).

@@ -19,253 +19,249 @@
  * Exit: 0 = clean, 1 = violations found.
  */
 
-import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
-import { argv, exit } from "node:process";
-import { parseArgs } from "node:util";
+import { spawnSync } from 'node:child_process'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { dirname, join, relative, resolve } from 'node:path'
+import { argv, exit } from 'node:process'
+import { parseArgs } from 'node:util'
 
-const PROJECT_ROOT = new URL("..", import.meta.url).pathname;
-const MAX_AGENTS_LINES = 200;
-const ALLOWED_ENV_FILES: Record<string, true> = { ".env.example": true };
+const PROJECT_ROOT = new URL('..', import.meta.url).pathname
+const MAX_AGENTS_LINES = 200
+const ALLOWED_ENV_FILES: Record<string, true> = { '.env.example': true }
 
 const IGNORED_DIRS: Record<string, true> = {
-  ".git": true,
+  '.git': true,
   node_modules: true,
   dist: true,
   coverage: true,
-  "playwright-report": true,
-  "test-results": true,
-  "blob-report": true,
-  "src/api/generated": true,
-};
+  'playwright-report': true,
+  'test-results': true,
+  'blob-report': true,
+  'src/api/generated': true,
+}
 
-const MARKDOWN_LINK =
-  /!?\[[^\]]*\]\(\s*(<[^>]*>|[^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g;
+const MARKDOWN_LINK = /!?\[[^\]]*\]\(\s*(<[^>]*>|[^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g
 
 interface Violation {
-  check: string;
-  filepath: string;
-  line: number;
-  message: string;
+  check: string
+  filepath: string
+  line: number
+  message: string
 }
 
 function collectAgentsFiles(): string[] {
-  const files: string[] = [];
+  const files: string[] = []
 
   function walk(dir: string): void {
-    let entries;
+    let entries
     try {
-      entries = readdirSync(dir, { withFileTypes: true });
+      entries = readdirSync(dir, { withFileTypes: true })
     } catch {
-      return;
+      return
     }
     for (const entry of entries) {
-      const full = join(dir, entry.name);
-      const relPath = relative(PROJECT_ROOT, full);
+      const full = join(dir, entry.name)
+      const relPath = relative(PROJECT_ROOT, full)
       if (entry.isDirectory()) {
-        if (IGNORED_DIRS[entry.name] || IGNORED_DIRS[relPath]) continue;
-        walk(full);
-      } else if (entry.name === "AGENTS.md") {
-        files.push(full);
+        if (IGNORED_DIRS[entry.name] || IGNORED_DIRS[relPath]) continue
+        walk(full)
+      } else if (entry.name === 'AGENTS.md') {
+        files.push(full)
       }
     }
   }
 
-  walk(PROJECT_ROOT);
-  return files;
+  walk(PROJECT_ROOT)
+  return files
 }
 
 function collectTrackedFiles(): string[] | null {
-  const result = spawnSync("git", ["ls-files", "-z"], {
+  const result = spawnSync('git', ['ls-files', '-z'], {
     cwd: PROJECT_ROOT,
-    encoding: "utf-8",
-  });
-  if (result.status !== 0 || typeof result.stdout !== "string") return null;
-  return result.stdout.split("\0").filter(Boolean);
+    encoding: 'utf-8',
+  })
+  if (result.status !== 0 || typeof result.stdout !== 'string') return null
+  return result.stdout.split('\0').filter(Boolean)
 }
 
 function isExternal(target: string): boolean {
-  return /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(target);
+  return /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(target)
 }
 
 function checkLinks(filepath: string): Violation[] {
-  const violations: Violation[] = [];
-  const text = readFileSync(filepath, "utf-8");
-  const fileDir = dirname(filepath);
+  const violations: Violation[] = []
+  const text = readFileSync(filepath, 'utf-8')
+  const fileDir = dirname(filepath)
 
   for (const match of text.matchAll(MARKDOWN_LINK)) {
-    let target = match[1] ?? "";
-    if (target.startsWith("<") && target.endsWith(">")) {
-      target = target.slice(1, -1);
+    let target = match[1] ?? ''
+    if (target.startsWith('<') && target.endsWith('>')) {
+      target = target.slice(1, -1)
     }
-    if (!target || isExternal(target)) continue;
+    if (!target || isExternal(target)) continue
 
-    const withoutFragment = target.split("#")[0].split("?")[0];
-    if (!withoutFragment) continue;
+    const withoutFragment = target.split('#')[0].split('?')[0]
+    if (!withoutFragment) continue
 
-    const resolved = withoutFragment.startsWith("/")
+    const resolved = withoutFragment.startsWith('/')
       ? join(PROJECT_ROOT, withoutFragment.slice(1))
-      : resolve(fileDir, withoutFragment);
-    if (existsSync(resolved)) continue;
+      : resolve(fileDir, withoutFragment)
+    if (existsSync(resolved)) continue
 
-    const line = text.slice(0, match.index ?? 0).split("\n").length;
+    const line = text.slice(0, match.index ?? 0).split('\n').length
     violations.push({
-      check: "BROKEN_LINK",
+      check: 'BROKEN_LINK',
       filepath: relative(PROJECT_ROOT, filepath),
       line,
       message: `"${target}" does not resolve`,
-    });
+    })
   }
 
-  return violations;
+  return violations
 }
 
 function checkAgentsFiles(): Violation[] {
-  const violations: Violation[] = [];
-  const rootAgents = join(PROJECT_ROOT, "AGENTS.md");
+  const violations: Violation[] = []
+  const rootAgents = join(PROJECT_ROOT, 'AGENTS.md')
 
   if (!existsSync(rootAgents)) {
     violations.push({
-      check: "MISSING_AGENTS",
-      filepath: "AGENTS.md",
+      check: 'MISSING_AGENTS',
+      filepath: 'AGENTS.md',
       line: 0,
-      message: "root AGENTS.md is missing; it is the single source of agent rules",
-    });
+      message: 'root AGENTS.md is missing; it is the single source of agent rules',
+    })
   }
 
   for (const filepath of collectAgentsFiles()) {
-    const lines = readFileSync(filepath, "utf-8").split("\n").length;
+    const lines = readFileSync(filepath, 'utf-8').split('\n').length
     if (lines > MAX_AGENTS_LINES) {
       violations.push({
-        check: "AGENTS_TOO_LONG",
+        check: 'AGENTS_TOO_LONG',
         filepath: relative(PROJECT_ROOT, filepath),
         line: MAX_AGENTS_LINES + 1,
         message: `${lines} lines — keep AGENTS.md under ${MAX_AGENTS_LINES} and move detail into docs/`,
-      });
+      })
     }
-    violations.push(...checkLinks(filepath));
+    violations.push(...checkLinks(filepath))
   }
 
-  return violations;
+  return violations
 }
 
 function checkLegacyFiles(): Violation[] {
-  const violations: Violation[] = [];
-  const claudePath = join(PROJECT_ROOT, "CLAUDE.md");
+  const violations: Violation[] = []
+  const claudePath = join(PROJECT_ROOT, 'CLAUDE.md')
 
   if (existsSync(claudePath)) {
-    const content = readFileSync(claudePath, "utf-8").trim();
-    if (content !== "@AGENTS.md") {
+    const content = readFileSync(claudePath, 'utf-8').trim()
+    if (content !== '@AGENTS.md') {
       violations.push({
-        check: "CLAUDE_COPY",
-        filepath: "CLAUDE.md",
+        check: 'CLAUDE_COPY',
+        filepath: 'CLAUDE.md',
         line: 1,
         message: 'CLAUDE.md must be absent or contain only "@AGENTS.md"',
-      });
+      })
     }
   }
 
-  if (existsSync(join(PROJECT_ROOT, ".cursorrules"))) {
+  if (existsSync(join(PROJECT_ROOT, '.cursorrules'))) {
     violations.push({
-      check: "LEGACY_CURSORRULES",
-      filepath: ".cursorrules",
+      check: 'LEGACY_CURSORRULES',
+      filepath: '.cursorrules',
       line: 1,
-      message: "legacy .cursorrules — move the content into AGENTS.md and delete this file",
-    });
+      message: 'legacy .cursorrules — move the content into AGENTS.md and delete this file',
+    })
   }
 
-  return violations;
+  return violations
 }
 
 function checkTrackedFiles(tracked: string[]): Violation[] {
-  const violations: Violation[] = [];
+  const violations: Violation[] = []
 
   if (
-    tracked.some(
-      (path) =>
-        path === "src/api/generated" || path.startsWith("src/api/generated/")
-    )
+    tracked.some((path) => path === 'src/api/generated' || path.startsWith('src/api/generated/'))
   ) {
     violations.push({
-      check: "TRACKED_GENERATED",
-      filepath: "src/api/generated",
+      check: 'TRACKED_GENERATED',
+      filepath: 'src/api/generated',
       line: 0,
-      message: "generated client is tracked; it is a build artifact — untrack it",
-    });
+      message: 'generated client is tracked; it is a build artifact — untrack it',
+    })
   }
 
   for (const path of tracked) {
-    const name = path.split("/").pop() ?? path;
-    if (name.startsWith(".env") && !ALLOWED_ENV_FILES[name]) {
+    const name = path.split('/').pop() ?? path
+    if (name.startsWith('.env') && !ALLOWED_ENV_FILES[name]) {
       violations.push({
-        check: "TRACKED_SECRET",
+        check: 'TRACKED_SECRET',
         filepath: path,
         line: 0,
-        message: "environment file is tracked; remove it and keep secrets local",
-      });
+        message: 'environment file is tracked; remove it and keep secrets local',
+      })
     }
   }
 
-  return violations;
+  return violations
 }
 
 function checkSkills(): Violation[] {
-  const violations: Violation[] = [];
-  const skillsDir = join(PROJECT_ROOT, ".claude", "skills");
-  if (!existsSync(skillsDir)) return violations;
+  const violations: Violation[] = []
+  const skillsDir = join(PROJECT_ROOT, '.claude', 'skills')
+  if (!existsSync(skillsDir)) return violations
 
   for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const filepath = join(skillsDir, entry.name, "SKILL.md");
-    const display = relative(PROJECT_ROOT, filepath);
+    if (!entry.isDirectory()) continue
+    const filepath = join(skillsDir, entry.name, 'SKILL.md')
+    const display = relative(PROJECT_ROOT, filepath)
 
     if (!existsSync(filepath)) {
       violations.push({
-        check: "SKILL_FRONTMATTER",
+        check: 'SKILL_FRONTMATTER',
         filepath: display,
         line: 0,
-        message: "SKILL.md is missing or a broken symlink",
-      });
-      continue;
+        message: 'SKILL.md is missing or a broken symlink',
+      })
+      continue
     }
 
-    const text = readFileSync(filepath, "utf-8");
-    const frontmatter = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-    const body = frontmatter?.[1] ?? "";
-    const missing: string[] = [];
-    if (!/^name:\s*\S+/m.test(body)) missing.push("name");
-    if (!/^description:\s*\S+/m.test(body)) missing.push("description");
+    const text = readFileSync(filepath, 'utf-8')
+    const frontmatter = text.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+    const body = frontmatter?.[1] ?? ''
+    const missing: string[] = []
+    if (!/^name:\s*\S+/m.test(body)) missing.push('name')
+    if (!/^description:\s*\S+/m.test(body)) missing.push('description')
 
     if (missing.length) {
       violations.push({
-        check: "SKILL_FRONTMATTER",
+        check: 'SKILL_FRONTMATTER',
         filepath: display,
         line: 1,
-        message: `frontmatter is missing ${missing.join(" and ")}`,
-      });
+        message: `frontmatter is missing ${missing.join(' and ')}`,
+      })
     }
   }
 
-  return violations;
+  return violations
 }
 
 function main(): number {
   const { values } = parseArgs({
     args: argv.slice(2),
     options: {
-      json: { type: "boolean", default: false },
+      json: { type: 'boolean', default: false },
     },
     strict: false,
-  });
+  })
 
-  const tracked = collectTrackedFiles();
+  const tracked = collectTrackedFiles()
   const violations: Violation[] = [
     ...checkAgentsFiles(),
     ...checkLegacyFiles(),
     ...(tracked ? checkTrackedFiles(tracked) : []),
     ...checkSkills(),
-  ];
+  ]
 
   if (values.json) {
     console.log(
@@ -282,22 +278,20 @@ function main(): number {
         null,
         2
       )
-    );
+    )
   } else {
     if (violations.length === 0) {
-      console.log("All agent context checks passed.");
+      console.log('All agent context checks passed.')
     }
     for (const v of violations) {
-      console.log(`[${v.check}] ${v.filepath}:${v.line} — ${v.message}`);
+      console.log(`[${v.check}] ${v.filepath}:${v.line} — ${v.message}`)
     }
     console.log(
-      violations.length
-        ? `\n${violations.length} violation(s) found.`
-        : "\n0 violations."
-    );
+      violations.length ? `\n${violations.length} violation(s) found.` : '\n0 violations.'
+    )
   }
 
-  return violations.length ? 1 : 0;
+  return violations.length ? 1 : 0
 }
 
-exit(main());
+exit(main())
