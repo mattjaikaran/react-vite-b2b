@@ -90,23 +90,15 @@ function Alert({
   return (
     <div
       ref={ref}
-      className={cn(
-        'rounded-md border p-4',
-        styles.container,
-        className
-      )}
+      className={cn('rounded-md border p-4', styles.container, className)}
       role="alert"
       {...props}
     >
       <div className="flex">
         <div className={cn('flex-shrink-0', styles.icon)}>{icons[variant]}</div>
         <div className="ml-3 flex-1">
-          {title && (
-            <h3 className={cn('text-sm font-medium', styles.title)}>{title}</h3>
-          )}
-          <div className={cn('text-sm', styles.content, title && 'mt-1')}>
-            {children}
-          </div>
+          {title && <h3 className={cn('text-sm font-medium', styles.title)}>{title}</h3>}
+          <div className={cn('text-sm', styles.content, title && 'mt-1')}>{children}</div>
         </div>
         {dismissible && (
           <div className="ml-auto pl-3">

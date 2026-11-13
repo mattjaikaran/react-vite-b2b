@@ -18,7 +18,11 @@ interface ProfileState {
 }
 
 type ProfileAction =
-  | { type: 'SET_FIELD'; field: keyof Pick<ProfileState, 'firstName' | 'lastName' | 'bio'>; value: string }
+  | {
+      type: 'SET_FIELD'
+      field: keyof Pick<ProfileState, 'firstName' | 'lastName' | 'bio'>
+      value: string
+    }
   | { type: 'SET_STATUS'; error: string; success: string }
 
 function reducer(state: ProfileState, action: ProfileAction): ProfileState {
@@ -132,7 +136,9 @@ export default function ProfilePage() {
                   aria-label="First name"
                   label="First name"
                   value={firstName}
-                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'firstName', value: e.target.value })}
+                  onChange={(e) =>
+                    dispatch({ type: 'SET_FIELD', field: 'firstName', value: e.target.value })
+                  }
                 />
 
                 <Input
@@ -141,7 +147,9 @@ export default function ProfilePage() {
                   aria-label="Last name"
                   label="Last name"
                   value={lastName}
-                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'lastName', value: e.target.value })}
+                  onChange={(e) =>
+                    dispatch({ type: 'SET_FIELD', field: 'lastName', value: e.target.value })
+                  }
                 />
 
                 <div className="sm:col-span-2">
@@ -153,7 +161,9 @@ export default function ProfilePage() {
                     rows={3}
                     aria-label="Bio"
                     value={bio}
-                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'bio', value: e.target.value })}
+                    onChange={(e) =>
+                      dispatch({ type: 'SET_FIELD', field: 'bio', value: e.target.value })
+                    }
                     className="input mt-1 w-full"
                     placeholder="Tell us about yourself..."
                   />
@@ -162,7 +172,11 @@ export default function ProfilePage() {
             </div>
 
             <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-              <Button type="submit" disabled={updateProfile.isPending} loading={updateProfile.isPending}>
+              <Button
+                type="submit"
+                disabled={updateProfile.isPending}
+                loading={updateProfile.isPending}
+              >
                 {updateProfile.isPending ? 'Saving…' : 'Save changes'}
               </Button>
             </div>

@@ -30,10 +30,12 @@ Two separate suites; `bun run test` never runs the Playwright specs.
 
 ## What CI runs
 
-`.github/workflows/ci.yml` runs, in order: `bun run typecheck`, `bun run
-lint`, `bun run test`; then the Playwright suite on Ubuntu 24.04; then `bun
-run build`. The agent-context gate (`bun run check-agents`) runs in the same
-job as typecheck, lint, and unit tests.
+`.github/workflows/ci.yml` runs one job per gate, each after
+`bun install --frozen-lockfile`: Oxlint (`bun run lint:strict`), Oxfmt
+(`bun run format:check`), typecheck, the Vitest unit suite, React doctor
+(`bun run doctor`), the agent-context and dependency gates, the Playwright
+suite on Ubuntu 24.04, and the build. Jobs that read code skip docs-only
+changes; the Playwright job runs when app, test, or build config paths change.
 
 Playwright 1.50.0 has no dependency list for Ubuntu 26.04, so the e2e job is
 pinned to `ubuntu-24.04`.

@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import { useOrganization } from '@/lib/organizations'
 import { cn } from '@/lib/utils'
 
+// A native <option> cannot render the organization row markup, so the list item
+// keeps `role="option"` on its button.
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 export default function OrgSwitcher() {
   const { organizations, currentOrg, setCurrentOrg, isLoading } = useOrganization()
   const [isOpen, setIsOpen] = useState(false)
@@ -33,7 +37,13 @@ export default function OrgSwitcher() {
           {currentOrg?.name?.charAt(0).toUpperCase()}
         </div>
         <span className="max-w-[100px] truncate">{currentOrg?.name}</span>
-        <svg className={cn('size-4', isOpen && 'rotate-180')} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <svg
+          className={cn('size-4', isOpen && 'rotate-180')}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -48,7 +58,10 @@ export default function OrgSwitcher() {
             onClick={() => setIsOpen(false)}
             tabIndex={-1}
           />
-          <ul className="absolute left-0 z-20 mt-2 w-56 rounded-md border bg-white py-1 shadow-lg" aria-label="Organization list">
+          <ul
+            className="absolute left-0 z-20 mt-2 w-56 rounded-md border bg-white py-1 shadow-lg"
+            aria-label="Organization list"
+          >
             <li className="border-b px-3 py-2">
               <p className="text-xs font-medium uppercase text-gray-500">Organizations</p>
             </li>
@@ -58,7 +71,10 @@ export default function OrgSwitcher() {
                   type="button"
                   role="option"
                   aria-selected={currentOrg?.id === org.id}
-                  onClick={() => { setCurrentOrg(org); setIsOpen(false) }}
+                  onClick={() => {
+                    setCurrentOrg(org)
+                    setIsOpen(false)
+                  }}
                   className={cn(
                     'flex w-full items-center gap-x-3 px-3 py-2 text-left hover:bg-gray-50',
                     currentOrg?.id === org.id && 'bg-primary-50'
@@ -75,7 +91,11 @@ export default function OrgSwitcher() {
               </li>
             ))}
             <li className="border-t">
-              <Link to="/organizations?create=1" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2 text-sm hover:bg-gray-50">
+              <Link
+                to="/organizations?create=1"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center px-3 py-2 text-sm hover:bg-gray-50"
+              >
                 + Create Organization
               </Link>
             </li>

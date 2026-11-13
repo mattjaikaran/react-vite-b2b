@@ -19,12 +19,15 @@ Stack, directory map, and data flow: [docs/architecture.md](docs/architecture.md
 bun install          # Install dependencies (Bun is the only package manager)
 bun dev              # Regenerate the API client, then start Vite on :5173
 bun build            # Regenerate, typecheck, and build to dist/
-bun lint             # ESLint, zero warnings allowed
+bun lint             # Oxlint, warnings allowed
+bun run lint:strict  # Oxlint, warnings are failures (the CI gate)
+bun run format:check # Oxfmt check over the repository
 bun typecheck        # Regenerate, then tsc --noEmit
 bun run test         # Vitest unit suite
 bun run test:e2e     # Playwright suite (install a browser first)
 bun run api:check    # Verify the vendored contract still generates the client
 bun run check-agents # AGENTS.md, link, secret, and generated-file gate
+bun run doctor       # react-doctor, blocking on errors
 bun run gauntlet     # Full chain; check-conventions is not clean yet
 ```
 
@@ -64,6 +67,7 @@ Prerequisites, every script, and the Playwright browser setup:
 ## Spec workflow
 
 Agent-run changes are driven by a spec:
+
 - Write specs under `tasks/specs/` and list every file in `Files owned`.
   Change only those paths, plus a row you add when the work needs a new file.
 - Acceptance criteria and verification commands are part of the spec. Run

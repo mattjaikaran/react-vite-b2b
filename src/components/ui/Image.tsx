@@ -136,9 +136,7 @@ function ImageInner({
       style={wrapperStyle}
     >
       {showSkeleton && (
-        <span
-          className={cn('absolute inset-0 animate-pulse bg-gray-200', roundedClass)}
-        />
+        <span className={cn('absolute inset-0 animate-pulse bg-gray-200', roundedClass)} />
       )}
       {showBlur && (
         <img
@@ -163,7 +161,7 @@ function ImageInner({
           'transition-opacity duration-300',
           isLoading ? 'opacity-0' : 'opacity-100',
           roundedClass,
-          className,
+          className
         )}
         style={imgStyle}
         {...props}
@@ -173,9 +171,7 @@ function ImageInner({
 }
 
 // Public Image component: use key={src} so React resets the inner component when src changes
-const Image = ({ src, ...rest }: ImageProps) => (
-  <ImageInner key={src} src={src} {...rest} />
-)
+const Image = ({ src, ...rest }: ImageProps) => <ImageInner key={src} src={src} {...rest} />
 
 const AvatarImage = ({ size = 40, width, height, ...props }: AvatarImageProps) => (
   <Image
@@ -189,27 +185,11 @@ const AvatarImage = ({ size = 40, width, height, ...props }: AvatarImageProps) =
 )
 
 const HeroImage = (
-  props: Omit<ImageProps, 'layout' | 'aspectRatio' | 'priority' | 'objectFit'>,
-) => (
-  <Image
-    layout="responsive"
-    aspectRatio="16/9"
-    priority
-    objectFit="cover"
-    {...props}
-  />
-)
+  props: Omit<ImageProps, 'layout' | 'aspectRatio' | 'priority' | 'objectFit'>
+) => <Image layout="responsive" aspectRatio="16/9" priority objectFit="cover" {...props} />
 
 const ThumbnailImage = (
-  props: Omit<ImageProps, 'layout' | 'aspectRatio' | 'rounded' | 'objectFit'>,
-) => (
-  <Image
-    layout="responsive"
-    aspectRatio="16/9"
-    rounded="md"
-    objectFit="cover"
-    {...props}
-  />
-)
+  props: Omit<ImageProps, 'layout' | 'aspectRatio' | 'rounded' | 'objectFit'>
+) => <Image layout="responsive" aspectRatio="16/9" rounded="md" objectFit="cover" {...props} />
 
 export { Image, AvatarImage, HeroImage, ThumbnailImage }

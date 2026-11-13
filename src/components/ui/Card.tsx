@@ -37,11 +37,7 @@ interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
 
 function CardHeader({ ref, className, ...props }: CardHeaderProps) {
   return (
-    <div
-      ref={ref}
-      className={cn('border-b border-gray-200 pb-4 mb-4', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('border-b border-gray-200 pb-4 mb-4', className)} {...props} />
   )
 }
 
@@ -53,11 +49,7 @@ interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
 
 function CardTitle({ ref, className, children, ...props }: CardTitleProps) {
   return (
-    <h3
-      ref={ref}
-      className={cn('text-lg font-semibold text-gray-900', className)}
-      {...props}
-    >
+    <h3 ref={ref} className={cn('text-lg font-semibold text-gray-900', className)} {...props}>
       {children}
     </h3>
   )
@@ -81,11 +73,7 @@ interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
 
 function CardFooter({ ref, className, ...props }: CardFooterProps) {
   return (
-    <div
-      ref={ref}
-      className={cn('border-t border-gray-200 pt-4 mt-4', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('border-t border-gray-200 pt-4 mt-4', className)} {...props} />
   )
 }
 

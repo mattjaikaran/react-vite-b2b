@@ -4,4 +4,11 @@ export { Card, CardHeader, CardTitle, CardContent, CardFooter } from './Card'
 export { Alert, type AlertProps } from './Alert'
 export { Spinner } from './Spinner'
 export { Badge, type BadgeProps } from './Badge'
-export { Image, AvatarImage, HeroImage, ThumbnailImage, type ImageProps, type AvatarImageProps } from './Image'
+export {
+  Image,
+  AvatarImage,
+  HeroImage,
+  ThumbnailImage,
+  type ImageProps,
+  type AvatarImageProps,
+} from './Image'

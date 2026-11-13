@@ -25,8 +25,8 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(u
 const CURRENT_ORG_KEY = 'current_organization_id'
 
 export function OrganizationProvider({ children }: { children: ReactNode }) {
-  const [currentOrgId, setCurrentOrgId] = useState<string | null>(
-    () => localStorage.getItem(CURRENT_ORG_KEY)
+  const [currentOrgId, setCurrentOrgId] = useState<string | null>(() =>
+    localStorage.getItem(CURRENT_ORG_KEY)
   )
   const queryClient = useQueryClient()
 
@@ -59,9 +59,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   )
 
   return (
-    <OrganizationContext.Provider value={contextValue}>
-      {children}
-    </OrganizationContext.Provider>
+    <OrganizationContext.Provider value={contextValue}>{children}</OrganizationContext.Provider>
   )
 }
 
@@ -91,8 +89,7 @@ export function useCreateOrganization() {
   const queryClient = useQueryClient()
   return useMutation({
     ...organizationCreateMutation(),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: organizationListQueryKey() }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: organizationListQueryKey() }),
   })
 }
 

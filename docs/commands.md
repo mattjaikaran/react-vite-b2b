@@ -28,7 +28,11 @@ bun preview   # Serve the built dist/ locally
 ## Quality gates
 
 ```bash
-bun lint              # ESLint over TS/TSX, zero warnings allowed
+bun lint              # Oxlint, warnings allowed
+bun run lint:strict   # Oxlint with --deny-warnings; the CI gate
+bun run lint:fix      # Oxlint with --fix
+bun run format        # Oxfmt over the repository
+bun run format:check  # Oxfmt check; fails on unformatted files
 bun typecheck         # api:generate, then tsc --noEmit
 bun run test          # Vitest unit suite (src/**/*.test.ts(x))
 bun run test:watch    # Vitest in watch mode
@@ -45,10 +49,10 @@ so it is advisory and not part of CI. Do not add new findings.
 `bun run test:coverage` needs `@vitest/coverage-v8`, which is not a
 dependency, so it fails in a clean checkout until that package is added.
 
-`bun run gauntlet` chains `api:check`, `lint`, `typecheck`, `test`,
-`check-conventions`, `check-dependencies`, and `check-agents`. Because the
-convention report is not clean yet, run the individual gates when you need a
-passing signal.
+`bun run gauntlet` chains `api:check`, `format:check`, `lint`, `typecheck`,
+`test`, `check-conventions`, `check-dependencies`, and `check-agents`. Because
+the convention report is not clean yet, run the individual gates when you need
+a passing signal.
 
 ## API client
 
@@ -77,6 +81,5 @@ writes `playwright-report/`. See [Testing](testing.md).
 ## Other
 
 ```bash
-bun run format   # Prettier over src/**/*.{ts,tsx,css}
-bun run doctor   # react-doctor scan (downloads the tool with npx)
+bun run doctor   # react-doctor scan through the pinned dev dependency
 ```
